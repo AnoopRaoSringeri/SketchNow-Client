@@ -1,0 +1,115 @@
+.canvasOuterContainer {
+  display: flex;
+  height: inherit;
+  width: inherit;
+  background-color: var(--mantine-color-gray-2);
+  overflow: hidden;
+}
+
+.canvasContainer {
+  background-color: var(--mantine-color-white);
+}
+
+.left {
+  left: 0px;
+  top: calc((100vh - var(--height)) / 2);
+  position: fixed;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: var(--height);
+  margin-left: var(--mantine-spacing-lg);
+  .btn {
+    height: var(--buttonHeight);
+    top: calc((var(--height) - var(--buttonHeight)) / 2);
+    border-radius: var(--mantine-radius-xs);
+    border-bottom: 1px solid var(--mantine-color-gray-3);
+    border-top: 1px solid var(--mantine-color-gray-3);
+    border-right: 1px solid var(--mantine-color-gray-3);
+    background-color: var(--mantine-color-white);
+  }
+
+  .actionBtn {
+    height: 40px;
+    width: 100%;
+  }
+
+  .pseudoBtn {
+    top: 50%;
+    position: fixed;
+    border-radius: var(--mantine-radius-xs);
+    border-bottom: 1px solid var(--mantine-color-gray-3);
+    border-top: 1px solid var(--mantine-color-gray-3);
+    border-right: 1px solid var(--mantine-color-gray-3);
+    background-color: var(--mantine-color-white);
+  }
+}
+
+.top {
+  top: 0px;
+  left: calc((100vw - var(--width)) / 2);
+  position: fixed;
+  z-index: 1;
+  margin-top: var(--mantine-spacing-lg);
+  .btn {
+    width: var(--buttonWidth);
+    left: calc((var(--width) - var(--buttonWidth)) / 2);
+    border-radius: var(--mantine-radius-xs);
+    border-bottom: 1px solid var(--mantine-color-gray-3);
+    border-left: 1px solid var(--mantine-color-gray-3);
+    border-right: 1px solid var(--mantine-color-gray-3);
+    background-color: var(--mantine-color-white);
+  }
+
+  .actionBtn {
+    height: 100%;
+    width: 40px;
+  }
+}
+
+.content {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--mantine-radius-xs);
+  border: 1px solid var(--mantine-color-gray-3);
+  background-color: var(--mantine-color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: var(--buttonWidth);
+  gap: 4px;
+}
+
+.topContent {
+  flex: 1;
+  gap: 4px;
+  padding: 10px;
+  height: 50px;
+  border-radius: var(--mantine-radius-xs);
+  border: 1px solid var(--mantine-color-gray-3);
+  background-color: var(--mantine-color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.layersOuterContainer {
+  position: fixed;
+  z-index: 1;
+  top: calc((100vh - 300px) / 2);
+  right: 20px;
+  max-height: 40vh;
+  width: 150px;
+  background-color: var(--mantine-color-gray-1);
+  padding: var(--mantine-spacing-xs);
+  gap: var(--mantine-spacing-xs);
+}
+
+.layersContainer {
+  flex: 1;
+  overflow: auto;
+  width: 100%;
+  gap: var(--mantine-spacing-xs);
+}
