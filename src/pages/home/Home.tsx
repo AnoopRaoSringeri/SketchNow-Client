@@ -1,88 +1,68 @@
-import { Box, Button, Container, Flex, Title } from "@mantine/core";
-
 import { useNavigate } from "react-router-dom";
 
 function Home() {
-	const navigate = useNavigate();
+    const navigate = useNavigate();
 
-	return (
-		<Container
-			fluid
-			style={{
-				flex: 1,
+    return (
+        <div
+            style={{
+                flex: 1,
+                width: "100%",
+                backgroundColor: "#495057",
+                gap: "20px"
+            }}
+        >
+            <div
+                style={{
+                    display: "flex",
 
-				width: "100%",
+                    alignItems: "center",
 
-				backgroundColor: "#495057",
+                    justifyContent: "center",
 
-				gap: "20px",
-			}}
-		>
-			<Box
-				style={{
-					display: "flex",
+                    position: "fixed",
 
-					alignItems: "center",
+                    top: 100,
 
-					justifyContent: "center",
+                    width: "100%",
 
-					position: "fixed",
+                    flexDirection: "column",
 
-					top: 100,
+                    justifyItems: "center",
 
-					width: "100%",
+                    gap: 50
+                }}
+            >
+                <div style={{ fontSize: "75px" }}>Sketch your ideas</div>
 
-					flexDirection: "column",
+                <div>
+                    <div
+                        onClick={() => {
+                            navigate("/sketch/new");
+                        }}
+                    >
+                        Start Sketching
+                    </div>
 
-					justifyItems: "center",
+                    <div
+                        onClick={() => {
+                            navigate("/sketch/custom/new");
+                        }}
+                    >
+                        Custom Sketching
+                    </div>
 
-					gap: 50,
-				}}
-			>
-				<Title order={1} style={{ fontSize: "75px" }} variant="gradient">
-					Sketch your ideas
-				</Title>
-
-				<Flex gap={10}>
-					<Button
-						size="xl"
-						radius="lg"
-						variant="gradient"
-						color="red"
-						onClick={() => {
-							navigate("/sketch/new");
-						}}
-					>
-						Start Sketching
-					</Button>
-
-					<Button
-						size="xl"
-						radius="lg"
-						variant="gradient"
-						color="red"
-						onClick={() => {
-							navigate("/sketch/custom/new");
-						}}
-					>
-						Custom Sketching
-					</Button>
-
-					<Button
-						size="xl"
-						radius="lg"
-						variant="gradient"
-						color="red"
-						onClick={() => {
-							navigate("/sketch/new");
-						}}
-					>
-						Register
-					</Button>
-				</Flex>
-			</Box>
-		</Container>
-	);
+                    <div
+                        onClick={() => {
+                            navigate("/sketch/new");
+                        }}
+                    >
+                        Register
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default Home;

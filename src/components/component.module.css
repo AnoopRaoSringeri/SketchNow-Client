@@ -1,17 +1,17 @@
 .container {
-  z-index: 1;
-  right: 20px;
-  bottom: 10px;
-  position: absolute;
-  border: 1px solid var(--mantine-color-gray-3);
-  padding: 5px;
-  border-radius: 5px;
+    z-index: 1;
+    right: 20px;
+    bottom: 10px;
+    position: absolute;
+    border: 1px solid var(--mantine-color-gray-3);
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .layer {
-  display: flex;
-  justify-items: center;
-  width: 100%;
-  height: 120px;
-  min-height: 120px;
+    display: flex;
+    justify-items: center;
+    width: 100%;
+    height: 120px;
+    min-height: 120px;
 }

@@ -4,11 +4,11 @@
 import { Canvas } from "./index";
 
 declare module "fabric" {
-	interface Canvas {
-		viewportTransform: never[];
-		requestRenderAll(): unknown;
-		getRetinaScaling(): number;
-	}
+    interface Canvas {
+        viewportTransform: never[];
+        requestRenderAll(): unknown;
+        getRetinaScaling(): number;
+    }
 }
 
 export as namespace fabric;
