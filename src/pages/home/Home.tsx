@@ -4,36 +4,9 @@ function Home() {
     const navigate = useNavigate();
 
     return (
-        <div
-            style={{
-                flex: 1,
-                width: "100%",
-                backgroundColor: "#495057",
-                gap: "20px"
-            }}
-        >
-            <div
-                style={{
-                    display: "flex",
-
-                    alignItems: "center",
-
-                    justifyContent: "center",
-
-                    position: "fixed",
-
-                    top: 100,
-
-                    width: "100%",
-
-                    flexDirection: "column",
-
-                    justifyItems: "center",
-
-                    gap: 50
-                }}
-            >
-                <div style={{ fontSize: "75px" }}>Sketch your ideas</div>
+        <div className="w-full flex-1 gap-20 bg-gray-600">
+            <div className="fixed top-[100px] flex w-full flex-col justify-center gap-[50px] align-middle">
+                <div className="text-[75px]">Sketch your ideas</div>
 
                 <div>
                     <div
