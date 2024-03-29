@@ -12,7 +12,7 @@ export const ZoomController = observer(function ZoomController() {
     const { canvas } = useCanvas();
 
     return (
-        <div className="flex-column absolute bottom-10 right-20 justify-center rounded border border-solid border-gray-50 p-5 align-middle">
+        <div className="absolute bottom-10 right-20 flex-col justify-center rounded border border-solid border-gray-50 p-5 align-middle">
             <Button>
                 <Search />
             </Button>
