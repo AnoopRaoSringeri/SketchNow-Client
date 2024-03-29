@@ -1,3 +1,6 @@
+import { fabric } from "fabric";
+import { v4 as uuid } from "uuid";
+
 import {
     BaseFabricOption,
     CanvasBoardSize,
@@ -8,9 +11,6 @@ import {
     Views,
     Zoom
 } from "@/types/canvas";
-
-import { fabric } from "fabric";
-import { v4 as uuid } from "uuid";
 
 export function resizeCanvas(canvas: HTMLCanvasElement | null) {
     if (!canvas) {

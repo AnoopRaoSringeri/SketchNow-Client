@@ -1,13 +1,13 @@
-import { BaseFabricElement, Position } from "@/types/canvas";
 import { Canvas, fabric } from "fabric";
-import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { _createElement, _updateElement } from "@/lib/canvas-helpers";
-
-import { MenuPosition } from "@/types/layout";
-import json from "@/test/data.json";
 import { observer } from "mobx-react";
-import { useCanvasStore } from "@/stores/canvas-store";
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
+
+import json from "@/data/data.json";
+import { _createElement, _updateElement } from "@/lib/canvas-helpers";
+import { useCanvasStore } from "@/stores/canvas-store";
+import { BaseFabricElement, Position } from "@/types/canvas";
+import { MenuPosition } from "@/types/layout";
 
 fabric.Object.prototype.objectCaching = false;
 const WIDTH = 250;
@@ -55,7 +55,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     }, []);
 
     useEffect(() => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         window.addEventListener("resize", onResize);
         return () => {
             window.removeEventListener("resize", onResize);
@@ -63,7 +65,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     }, [canvas]);
 
     useLayoutEffect(() => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         if (canvasStore.ElementType == "pencil") {
             const { stroke, strokeWidth } = canvasStore.Options;
             canvas.isDrawingMode = true;
@@ -107,7 +111,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     }, [canvas, canvasStore.ElementType]);
 
     useLayoutEffect(() => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         canvas.on("mouse:down", onMouseDown);
         canvas.on("mouse:move", mouseMoveHandler);
         canvas.on("mouse:up", onMouseUp);
@@ -121,8 +127,12 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     }, [canvas, action, canvasStore.ElementType]);
 
     useLayoutEffect(() => {
-        if (!canvas) return;
-        if (canvasStore.ElementType != "none") return;
+        if (!canvas) {
+            return;
+        }
+        if (canvasStore.ElementType != "none") {
+            return;
+        }
         canvas.on("selection:created", onSelection);
         canvas.on("selection:updated", onSelection);
         canvas.on("selection:cleared", onUnselect);
@@ -138,7 +148,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     }, [canvas, canvasStore.ElementType]);
 
     const onResize = () => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         canvas.setWidth(window.innerWidth);
         canvas.setHeight(window.innerHeight);
         canvas.requestRenderAll();
@@ -196,7 +208,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     };
 
     const onMouseDown = (event: fabric.IEvent<MouseEvent>) => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         const points = canvas?.getPointer(event.e);
         if (points) {
             origin.current = { x: points.x, y: points.y };
@@ -230,7 +244,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     };
 
     const mouseMoveHandler = (event: fabric.IEvent<MouseEvent>) => {
-        if (action == "none" || !canvas || !origin.current || !currentPointer.current || !minimap) return;
+        if (action == "none" || !canvas || !origin.current || !currentPointer.current || !minimap) {
+            return;
+        }
         if (action == "click" && canvasStore.ElementType != "none") {
             _updateElement({
                 type: canvasStore.ElementType,
@@ -257,13 +273,19 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     };
 
     const onMouseWheelMove = (event: fabric.IEvent<WheelEvent>) => {
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
         const delta = event.e.deltaY;
         let zoom = canvas.getZoom();
         canvasStore.Zoom = zoom * 100;
         zoom *= 0.999 ** delta;
-        if (zoom > 20) zoom = 20;
-        if (zoom < 0.01) zoom = 0.01;
+        if (zoom > 20) {
+            zoom = 20;
+        }
+        if (zoom < 0.01) {
+            zoom = 0.01;
+        }
         canvas.zoomToPoint({ x: event.e.offsetX, y: event.e.offsetY }, zoom);
         canvas.requestRenderAll();
         if (!minimap) {
@@ -310,7 +332,9 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     };
 
     const onMouseUp = () => {
-        if (action == "none" || !canvas || !origin.current || !currentPointer.current) return;
+        if (action == "none" || !canvas || !origin.current || !currentPointer.current) {
+            return;
+        }
         let active = canvas.getActiveObject();
         if (canvasStore.ElementType === "pencil") {
             const allObjects = canvas?.getObjects();

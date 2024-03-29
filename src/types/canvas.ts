@@ -1,5 +1,6 @@
-import { RegistryType } from "./editors";
 import { fabric } from "fabric";
+
+import { RegistryType } from "./editors";
 
 export interface CanvasOptions {
     scale: number;

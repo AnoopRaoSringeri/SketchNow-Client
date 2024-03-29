@@ -1,18 +1,18 @@
+import { Pencil } from "lucide-react";
+import { observer } from "mobx-react";
+import { useState } from "react";
+import { HexAlphaColorPicker } from "react-colorful";
+
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { OptionType, Registry } from "@/types/editors";
-
-import { HexAlphaColorPicker } from "react-colorful";
-import { Pencil } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { observer } from "mobx-react";
 import { useCanvas } from "@/hooks/canvas-context";
 import { useCanvasStore } from "@/stores/canvas-store";
-import { useState } from "react";
+import { OptionType, Registry } from "@/types/editors";
 
 export const OptionsButton = observer(function OptionsButton() {
     const canvasStore = useCanvasStore();

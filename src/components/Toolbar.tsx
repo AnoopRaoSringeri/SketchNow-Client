@@ -1,7 +1,7 @@
 import { Copy, Delete } from "lucide-react";
+import { observer } from "mobx-react";
 
 import { Button } from "./ui/button";
-import { observer } from "mobx-react";
 
 export const ElementType = observer(function ElementType() {
     return (

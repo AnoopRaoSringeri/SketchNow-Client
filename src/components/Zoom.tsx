@@ -1,10 +1,11 @@
 import { Minus, Plus, Search } from "lucide-react";
-
-import { Button } from "./ui/button";
-import { ZOOM_STEP } from "@/types/canvas";
 import { observer } from "mobx-react";
+
 import { useCanvas } from "@/hooks/canvas-context";
 import { useCanvasStore } from "@/stores/canvas-store";
+import { ZOOM_STEP } from "@/types/canvas";
+
+import { Button } from "./ui/button";
 
 export const ZoomController = observer(function ZoomController() {
     const canvasStore = useCanvasStore();
@@ -20,7 +21,9 @@ export const ZoomController = observer(function ZoomController() {
                 onClick={() => {
                     if (canvas) {
                         const zoomOutValue = canvas.getZoom() - ZOOM_STEP;
-                        if (zoomOutValue < 0) return;
+                        if (zoomOutValue < 0) {
+                            return;
+                        }
                         canvasStore.Zoom = zoomOutValue * 100;
                         canvas.setZoom(zoomOutValue);
                         canvas.requestRenderAll();
@@ -33,7 +36,9 @@ export const ZoomController = observer(function ZoomController() {
                 onClick={() => {
                     if (canvas) {
                         const zoomInValue = canvas.getZoom() + ZOOM_STEP;
-                        if (zoomInValue > 20) return;
+                        if (zoomInValue > 20) {
+                            return;
+                        }
                         canvasStore.Zoom = zoomInValue * 100;
                         canvas.setZoom(zoomInValue);
                         canvas.requestRenderAll();

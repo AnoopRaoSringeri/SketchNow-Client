@@ -1,4 +1,7 @@
+import { Save } from "lucide-react";
 import { observer } from "mobx-react";
+
+import { Button } from "@/components/ui/button";
 import { useCanvas } from "@/hooks/canvas-context";
 
 const CanvasOptions = observer(function CanvasOptions() {
@@ -8,22 +11,14 @@ const CanvasOptions = observer(function CanvasOptions() {
         return <div />;
     }
     return (
-        <div
-            style={{
-                position: "absolute",
-                top: 20,
-                right: 20,
-                zIndex: 1
-            }}
-        >
-            {/* <ActionIcon variant="filled">
-        <Icon
-          icon="save"
-          onClick={() => {
-            console.log(canvas.toJSON(["data", "fill", "fillStyle"]));
-          }}
-        />
-      </ActionIcon> */}
+        <div className="absolute right-5 top-5 z-[1]">
+            <Button
+                onClick={() => {
+                    console.log(canvas.toJSON(["data", "fill", "fillStyle"]));
+                }}
+            >
+                <Save />
+            </Button>
         </div>
     );
 });

@@ -10,6 +10,7 @@
         "plugin:import/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:react/jsx-runtime",
+        "plugin:tailwindcss/recommended",
         // This disables the formatting rules in ESLint that Prettier is going to be responsible for handling.
         // Make sure it's always the last config, so it gets the chance to override other configs.
         "eslint-config-prettier",
@@ -18,7 +19,7 @@
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": { "project": ["./tsconfig.json"] },
-    "plugins": ["@typescript-eslint", "react", "import", "prettier"],
+    "plugins": ["@typescript-eslint", "react", "simple-import-sort", "import", "prettier"],
     "settings": {
         "react": {
             // Tells eslint-plugin-react to automatically detect the version of React to use.
@@ -48,16 +49,20 @@
         "no-empty-pattern": "error",
         "no-unused-vars": "warn",
         "@typescript-eslint/no-unused-vars": ["warn"],
-        "import/named": "none",
-        "sort-imports": [
-            "error",
-            {
-                "ignoreCase": false,
-                "ignoreDeclarationSort": false,
-                "ignoreMemberSort": false,
-                "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
-                "allowSeparatedGroups": false
-            }
-        ]
+        "import/named": "off",
+        // "sort-imports": [
+        //     "error",
+        //     {
+        //         "ignoreCase": false,
+        //         "ignoreDeclarationSort": false,
+        //         "ignoreMemberSort": false,
+        //         "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        //         "allowSeparatedGroups": false
+        //     }
+        // ],
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+        "tailwindcss/enforces-shorthand": ["error"],
+        "react/prop-types": "off"
     }
 }

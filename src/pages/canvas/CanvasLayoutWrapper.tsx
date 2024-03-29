@@ -1,33 +1,36 @@
+import { Circle, Cylinder, LineChart, Move, Pencil, RectangleHorizontal, Square } from "lucide-react";
+
+import { OptionsButton } from "@/components/Options";
+import { ZoomController } from "@/components/Zoom";
+import { Option } from "@/types/layout";
+
 import Canvas from "./Canvas";
-import CanvasLayers from "./CanvasLayers";
 import CanvasOptions from "./CanvasOptions";
 import LeftOptions from "./OptionsLayout";
-import { Option } from "@/types/layout";
-import { OptionsButton } from "@/components/Options";
 import TopCanvasOptions from "./TopOptions";
-import { ZoomController } from "@/components/Zoom";
-import classes from "./canvas.module.css";
 
 // import { MiniMap } from"@/components/MiniMap";
 
 const LeftOptionLists: Option[] = [
-    { icon: "up-down-left-right", value: "none" },
-    { icon: "pencil", value: "pencil" },
-    { icon: "table-cells-large", value: "rectangle" },
-    { icon: "circle", value: "circle" },
-    { icon: "square", value: "square" },
-    { icon: "chart-line", value: "line" },
-    { icon: "coins", value: "ellipse" }
+    { icon: Move, value: "none" },
+    { icon: Pencil, value: "pencil" },
+    { icon: RectangleHorizontal, value: "rectangle" },
+    { icon: Circle, value: "circle" },
+    { icon: Square, value: "square" },
+    { icon: LineChart, value: "line" },
+    { icon: Cylinder, value: "ellipse" }
 ];
 
 const CanvasLayoutWrapper = function CanvasLayoutWrapper() {
     return (
-        <div className={classes.canvasOuterContainer}>
-            <TopCanvasOptions />
-            <LeftOptions options={LeftOptionLists} position="left" />
-            <CanvasOptions />
-            <OptionsButton />
-            <ZoomController />
+        <div className="flex size-full overflow-hidden bg-gray-200">
+            <div className="absolute flex size-full items-center justify-center bg-slate-300">
+                <TopCanvasOptions />
+                <LeftOptions options={LeftOptionLists} />
+                <CanvasOptions />
+                <OptionsButton />
+                <ZoomController />
+            </div>
             <Canvas />
             {/* <CanvasLayers /> */}
             {/* <MiniMap /> */}

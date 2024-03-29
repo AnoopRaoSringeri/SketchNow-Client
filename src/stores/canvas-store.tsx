@@ -1,10 +1,10 @@
-import { BaseFabricElement, CanvasBoard, ElementType, Layer, Options, Views } from "@/types/canvas";
-import { ReactNode, createContext, useContext } from "react";
 import { makeAutoObservable, runInAction, toJS } from "mobx";
+import { createContext, ReactNode, useContext } from "react";
+import { v4 as uuid } from "uuid";
 
 import { Layout } from "@/lib/canvas-helpers";
+import { BaseFabricElement, CanvasBoard, ElementType, Layer, Options, Views } from "@/types/canvas";
 import { MenuPosition } from "@/types/layout";
-import { v4 as uuid } from "uuid";
 
 class CanvasStore {
     constructor() {
@@ -158,7 +158,9 @@ class CanvasStore {
 
     toggleMenuLock() {
         runInAction(() => {
-            if (!this.menuPosition) return;
+            if (!this.menuPosition) {
+                return;
+            }
             this.menuPosition.isLocked = !this.menuPosition.isLocked;
         });
     }

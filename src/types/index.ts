@@ -1,8 +1,8 @@
+/* eslint-disable import/no-unresolved */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Object as FabObject, ICanvasOptions, IPoint, Point } from "fabric/fabric-impl";
-
 import { fabric } from "fabric";
+import { ICanvasOptions, IPoint, Object as FabObject, Point } from "fabric/fabric-impl";
 
 export interface Canvas extends fabric.Canvas {
     /**

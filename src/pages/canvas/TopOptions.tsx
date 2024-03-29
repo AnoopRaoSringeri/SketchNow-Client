@@ -1,78 +1,60 @@
-import classes from "./canvas.module.css";
+import { Palette, PencilLine } from "lucide-react";
 import { observer } from "mobx-react";
+import { ColorPicker, useColor } from "react-color-palette";
+
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { useCanvas } from "@/hooks/canvas-context";
 import { useCanvasStore } from "@/stores/canvas-store";
-import { useElementSize } from "@mantine/hooks";
-import { useState } from "react";
 
-const TopCanvasOptions = observer(function TopCanvasOptions({ buttonWidth = 50 }: { buttonWidth?: number }) {
+// TODO: Resolve errors
+const TopCanvasOptions = observer(function TopCanvasOptions() {
     const canvasStore = useCanvasStore();
     const { canvas } = useCanvas();
-    const [color, setColor] = useState<string>(canvasStore.Options.stroke);
-    const { ref: elementRef, width } = useElementSize();
-    const [strokeWidth, setStrokeWidth] = useState<number>(canvasStore.Options.strokeWidth);
+    const [color, setColor] = useColor(canvasStore.Options.stroke);
 
     return (
-        <div
-            ref={elementRef}
-            className={classes.top}
-            //   style={{
-            //     "--width": width + "px",
-            //     "--height": "50px",
-            //     "--buttonWidth": buttonWidth + "px"
-            //   }}
-        >
-            {/* <Flex direction="column" align="center">
-        <Box className={classes.topContent}>
-          <Menu width={250}>
-            <Menu.Target>
-              <ActionIcon className="actionBtn" variant="default">
-                <Icon icon="palette" color={canvasStore.Options.stroke} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <ColorPicker
-                swatchesPerRow={10}
-                style={{ width: "100%" }}
-                format="hexa"
-                value={color}
-                onChange={(color) => {
-                  setColor(color);
-                }}
-                onChangeEnd={(c) => {
-                  canvasStore.updateOptions("stroke", c);
-                  setColor(c);
-                  if (canvas) {
-                    canvas.freeDrawingBrush.color = c;
-                  }
-                }}
-                swatches={[...DEFAULT_THEME.colors.red, ...DEFAULT_THEME.colors.green, ...DEFAULT_THEME.colors.blue]}
-              />
-            </Menu.Dropdown>
-          </Menu>
-          <Menu width={250}>
-            <Menu.Target>
-              <ActionIcon className="actionBtn" variant="default">
-                <Icon icon="pen-ruler" />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Slider
-                value={strokeWidth}
-                onChange={setStrokeWidth}
-                min={1}
-                max={100}
-                onChangeEnd={(value) => {
-                  canvasStore.updateOptions("strokeWidth", value);
-                  if (canvas) {
-                    canvas.freeDrawingBrush.width = value;
-                  }
-                }}
-              />
-            </Menu.Dropdown>
-          </Menu>
-        </Box>
-      </Flex> */}
+        <div className="fixed top-0 z-[1] mt-5 flex flex-row items-center gap-1">
+            <Popover>
+                <PopoverTrigger>
+                    <Button variant="secondary">
+                        <PencilLine />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <Slider
+                        value={[canvasStore.Options.strokeWidth]}
+                        onValueChange={(values) => {
+                            canvasStore.updateOptions("strokeWidth", values[0]);
+                            if (canvas) {
+                                canvas.freeDrawingBrush.width = values[0];
+                            }
+                        }}
+                    />
+                </PopoverContent>
+            </Popover>
+            <Popover>
+                <PopoverTrigger>
+                    <Button variant="secondary">
+                        <Palette />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <ColorPicker
+                        color={color}
+                        onChange={(c) => {
+                            setColor(c);
+                            canvasStore.updateOptions("stroke", c.hex);
+                            if (canvas) {
+                                canvas.freeDrawingBrush.color = c.hex;
+                            }
+                        }}
+                        hideInput={["rgb", "hsv", "hex"]}
+                        height={100}
+                    />
+                </PopoverContent>
+            </Popover>
         </div>
     );
 });
