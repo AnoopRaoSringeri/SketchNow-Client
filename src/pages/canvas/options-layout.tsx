@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useCanvasStore } from "@/stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 import { Option } from "@/types/layout";
 
 const LeftOptions = observer(function LeftOptions({ options }: { options: Option[]; additionalComponent?: ReactNode }) {
@@ -12,7 +12,7 @@ const LeftOptions = observer(function LeftOptions({ options }: { options: Option
     const isElementLocked = canvasStore.LockElementType;
 
     return (
-        <div className="fixed left-0 z-[1] ml-5 flex flex-col items-center gap-1">
+        <div className="fixed left-5 z-[1]  flex flex-col items-center gap-1">
             <Button
                 onClick={() => {
                     canvasStore.toggleLockElementType();

@@ -3,9 +3,17 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import { ButtonProps, buttonVariants } from "./button";
+
 const Popover = PopoverPrimitive.Root;
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
+
+const PopoverTriggerButton = React.forwardRef<HTMLButtonElement, PopoverPrimitive.PopoverTriggerProps & ButtonProps>(
+    function PopoverTriggerButton({ variant, size, className, ...props }, ref) {
+        return <PopoverTrigger className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    }
+);
 
 const PopoverContent = React.forwardRef<
     React.ElementRef<typeof PopoverPrimitive.Content>,
@@ -26,4 +34,4 @@ const PopoverContent = React.forwardRef<
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { Popover, PopoverContent, PopoverTrigger };
+export { Popover, PopoverContent, PopoverTrigger, PopoverTriggerButton };

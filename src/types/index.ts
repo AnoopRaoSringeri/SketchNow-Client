@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable import/no-unresolved */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -255,5 +256,5 @@ export interface Canvas extends fabric.Canvas {
      */
     removeListeners(): void;
 }
-
+export { FabObject };
 export interface IUtil extends fabric.IUtil {}

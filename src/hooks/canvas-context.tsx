@@ -4,8 +4,8 @@ import React, { createContext, useCallback, useContext, useEffect, useLayoutEffe
 import { v4 as uuid } from "uuid";
 
 import json from "@/data/data.json";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 import { _createElement, _updateElement } from "@/lib/canvas-helpers";
-import { useCanvasStore } from "@/stores/canvas-store";
 import { BaseFabricElement, Position } from "@/types/canvas";
 import { MenuPosition } from "@/types/layout";
 
@@ -47,7 +47,7 @@ export const FabricContextProvider = observer(function FabricContextProvider({
             selection: false
         });
         // fabricCanvas.loadFromJSON(json, function () {
-        //   fabricCanvas.requestRenderAll();
+        //     fabricCanvas.requestRenderAll();
         // });
         // console.log(fabricCanvas.getObjects());
         fabricCanvas.requestRenderAll();
@@ -71,7 +71,7 @@ export const FabricContextProvider = observer(function FabricContextProvider({
         if (canvasStore.ElementType == "pencil") {
             const { stroke, strokeWidth } = canvasStore.Options;
             canvas.isDrawingMode = true;
-            canvas.freeDrawingCursor = "pencil";
+            // canvas.freeDrawingCursor = "pencil";
             canvas.freeDrawingBrush.color = stroke;
             canvas.freeDrawingBrush.width = strokeWidth;
         } else {
@@ -328,7 +328,6 @@ export const FabricContextProvider = observer(function FabricContextProvider({
         canvas.requestRenderAll();
         event.e.preventDefault();
         event.e.stopPropagation();
-        //  canvasStore.Version++;
     };
 
     const onMouseUp = () => {
@@ -341,7 +340,7 @@ export const FabricContextProvider = observer(function FabricContextProvider({
             if (allObjects && allObjects.length > 0) {
                 active = allObjects[allObjects.length - 1];
                 canvas.setActiveObject(active);
-                allObjects[allObjects?.length - 1].set({
+                active.set({
                     data: { type: "pencil", id: uuid() }
                 });
             }
@@ -408,7 +407,8 @@ export const FabricContextProvider = observer(function FabricContextProvider({
         };
         minimap.add(minimapView);
         minimap.requestRenderAll();
-        //  canvasStore.Version++;
+        canvas.requestRenderAll();
+        // canvasStore.Version++;
     };
 
     return (
@@ -420,20 +420,11 @@ export const FabricContextProvider = observer(function FabricContextProvider({
             }}
         >
             {children}
-            {/* <Flex
-        align="center"
-        justify="center"
-        style={{
-          position: "absolute",
-          bottom: 20,
-          left: 20,
-          height: 210,
-          width: 260,
-          border: "1px solid black",
-        }}
-      >
-        <canvas id="MniMap" ref={ref} />
-      </Flex> */}
+            {canvas ? (
+                <div className="absolute bottom-[100px] right-5 z-[1] flex h-[210] w-[260] items-center justify-center border-2 border-solid">
+                    <canvas id="MniMap" ref={ref} />
+                </div>
+            ) : null}
         </FabricContext.Provider>
     );
 });

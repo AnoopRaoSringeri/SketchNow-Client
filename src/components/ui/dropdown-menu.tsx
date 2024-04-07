@@ -4,6 +4,8 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import { ButtonProps, buttonVariants } from "./button";
+
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
@@ -15,6 +17,13 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+
+const DropdownMenuTriggerButton = React.forwardRef<
+    HTMLButtonElement,
+    DropdownMenuPrimitive.DropdownMenuTriggerProps & ButtonProps
+>(function DropdownMenuTriggerButton({ variant, size, className, ...props }, ref) {
+    return <DropdownMenuTrigger className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+});
 
 const DropdownMenuSubTrigger = React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
@@ -175,5 +184,6 @@ export {
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
+    DropdownMenuTriggerButton
 };

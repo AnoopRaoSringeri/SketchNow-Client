@@ -1,11 +1,11 @@
 import { Copy, Delete } from "lucide-react";
 import { observer } from "mobx-react";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export const ElementType = observer(function ElementType() {
     return (
-        <div className="flex-column left-[50px] top-[50px]">
+        <div className="left-[50px] top-[50px] flex-col">
             <Button>
                 <Copy />
             </Button>

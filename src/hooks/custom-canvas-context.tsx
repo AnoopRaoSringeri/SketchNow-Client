@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { useCanvasStore } from "../stores/canvas-store";
+import { useCanvasStore } from "../data-stores/canvas-store";
 import { Position } from "../types/canvas";
 
 const WIDTH = 250;

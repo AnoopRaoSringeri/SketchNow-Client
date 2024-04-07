@@ -3,9 +3,9 @@ import { Route, Routes } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 
 import { Loader } from "@/components/ui/loader";
-import CanvasLayoutWrapper from "@/pages/canvas/CanvasLayoutWrapper";
-import { CustomCanvasWrapper } from "@/pages/custom-canvas/CustomCanvasWrapper";
-import Home from "@/pages/home/Home";
+import CanvasLayoutWrapper from "@/pages/canvas/canvas-layout-wrapper";
+import { CustomCanvasWrapper } from "@/pages/custom-canvas/custom-canvas-wrapper";
+import Home from "@/pages/home";
 
 function AppContainer() {
     return (

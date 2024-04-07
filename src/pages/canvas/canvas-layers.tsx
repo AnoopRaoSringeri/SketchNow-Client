@@ -1,9 +1,9 @@
 import { Plus } from "lucide-react";
 import { observer } from "mobx-react";
 
-import { LayerCompoent } from "@/components/Layer";
+import { LayerCompoent } from "@/components/mini-components/layer";
 import { Button } from "@/components/ui/button";
-import { useCanvasStore } from "@/stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 
 const CanvasLayers = observer(function CanvasLayers() {
     const canvasStore = useCanvasStore();

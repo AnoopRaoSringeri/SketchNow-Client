@@ -1,17 +1,12 @@
 import { Pencil } from "lucide-react";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import { HexAlphaColorPicker } from "react-colorful";
+import { ColorPicker, useColor } from "react-color-palette";
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTriggerButton } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { useCanvas } from "@/hooks/canvas-context";
-import { useCanvasStore } from "@/stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 import { OptionType, Registry } from "@/types/editors";
 
 export const OptionsButton = observer(function OptionsButton() {
@@ -52,34 +47,32 @@ export const OptionsContainer = observer(function OptionsContainer({ isDragging 
     const elementType = canvasStore.SelectedElement.data.type;
     return (
         <>
-            <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <Pencil
-                        style={{
-                            width: "40px",
-                            height: "40px",
-                            position: "absolute",
-                            right: 20,
-                            top: 60,
-                            zIndex: 999
-                        }}
-                    />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
+            <Popover>
+                <PopoverTriggerButton
+                    variant="outline"
+                    size="icon"
+                    className="absolute right-5 top-20 z-[1]  rounded-full"
+                >
+                    <Pencil />
+                </PopoverTriggerButton>
+                <PopoverContent className="flex w-[250px] flex-col gap-2 p-2">
                     {Registry.get(elementType)?.options.map((o, i) => (
-                        <DropdownMenuItem key={o.optionKey + i}>
-                            <OptionsPanelWrapper type={o.type} optionKey={o.optionKey} title={o.title} />
-                        </DropdownMenuItem>
+                        <OptionsPanelWrapper
+                            key={o.optionKey + i}
+                            type={o.type}
+                            optionKey={o.optionKey}
+                            title={o.title}
+                        />
                     ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
+                </PopoverContent>
+            </Popover>
         </>
     );
 });
 
 export const OptionsPanelWrapper = observer(function OptionsPanelWrapper({ type, optionKey, title }: OptionType) {
     return (
-        <div className="flex-column items-center">
+        <div className="flex w-full flex-col">
             <div className="text-xs">{title}</div>
             <OptionsPanel type={type} optionKey={optionKey} />
         </div>
@@ -89,6 +82,7 @@ export const OptionsPanelWrapper = observer(function OptionsPanelWrapper({ type,
 export const OptionsPanel = observer(function OptionsPanel({ type, optionKey }: Omit<OptionType, "title">) {
     const canvasStore = useCanvasStore();
     const { canvas } = useCanvas();
+
     const onChange = (value: string | number) => {
         const activeObject = canvas?.getActiveObject();
         if (activeObject) {
@@ -105,29 +99,36 @@ export const OptionsPanel = observer(function OptionsPanel({ type, optionKey }: 
 
     switch (type) {
         case "Colour": {
-            return (
-                <>
-                    <HexAlphaColorPicker />
-                    {/* <ColorPicker
-          swatchesPerRow={10}
-          format="hex"
-          value={canvasStore.SelectedElement?.[optionKey]}
-          onChange={onChange}
-          fullWidth
-          swatches={[
-            ...DEFAULT_THEME.colors.red,
-            ...DEFAULT_THEME.colors.green,
-            ...DEFAULT_THEME.colors.blue,
-          ]}
-          /> */}
-                </>
-            );
+            return <ColorPickerControl value={canvasStore.SelectedElement?.[optionKey]} onChange={onChange} />;
         }
         case "Slider": {
-            return <Slider value={canvasStore.SelectedElement?.[optionKey]} onValueChange={(v) => onChange(v[0])} />;
+            return <Slider value={[canvasStore.SelectedElement?.[optionKey]]} onValueChange={(v) => onChange(v[0])} />;
         }
         default: {
             return <div></div>;
         }
     }
 });
+
+const ColorPickerControl = function ColorPickerControl({
+    value,
+    onChange
+}: {
+    // eslint-disable-next-line no-unused-vars
+    onChange: (color: string) => unknown;
+    value: string;
+}) {
+    const [color, setColor] = useColor(value);
+
+    return (
+        <ColorPicker
+            color={color}
+            onChange={(c) => {
+                setColor(c);
+                onChange(c.hex);
+            }}
+            hideInput={["rgb", "hsv", "hex"]}
+            height={100}
+        />
+    );
+};

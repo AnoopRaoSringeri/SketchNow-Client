@@ -1,42 +1,41 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable", "ES2021"],
-    "module": "ESNext",
-    "skipLibCheck": true,
+    "compilerOptions": {
+        "target": "ES2020",
+        "useDefineForClassFields": true,
+        "lib": ["ES2020", "DOM", "DOM.Iterable", "ES2021"],
+        "module": "ESNext",
+        "skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
+        /* Bundler mode */
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
 
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+        /* Linting */
+        "strict": true,
+        "noUnusedLocals": true,
+        "noFallthroughCasesInSwitch": true,
 
-    /**/
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["./src/*"]
+        /**/
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src", "./*.config.js", "./*.config.ts"],
+    "references": [{ "path": "./tsconfig.node.json" }],
+    "settings": {
+        "import/resolver": {
+            "project": {},
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            },
+            "typescript": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
     }
-  },
-  "include": ["src", "./*.config.js"],
-  "references": [{ "path": "./tsconfig.node.json" }],
-  "settings": {
-    "import/resolver": {
-      "project": {},
-      "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      },
-      "typescript": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      }
-    }
-  }
 }

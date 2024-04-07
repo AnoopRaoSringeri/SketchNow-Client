@@ -1,19 +1,24 @@
 import "react-color-palette/css";
 
-import { FabricContextProvider } from "./hooks/canvas-context";
-import { CustomCanavsContextProvider } from "./hooks/custom-canvas-context";
-import AppContainer from "./layouts/Container";
-import { CanvasStoreProvider } from "./stores/canvas-store";
+import { StoreProvider } from "@/api-stores/store-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { CanvasStoreProvider } from "@/data-stores/canvas-store";
+import { FabricContextProvider } from "@/hooks/canvas-context";
+import { CustomCanavsContextProvider } from "@/hooks/custom-canvas-context";
+import AppContainer from "@/pages/app-container";
 
 function App() {
     return (
-        <CanvasStoreProvider>
-            <CustomCanavsContextProvider>
-                <FabricContextProvider>
-                    <AppContainer />
-                </FabricContextProvider>
-            </CustomCanavsContextProvider>
-        </CanvasStoreProvider>
+        <StoreProvider>
+            <CanvasStoreProvider>
+                <CustomCanavsContextProvider>
+                    <FabricContextProvider>
+                        <Toaster />
+                        <AppContainer />
+                    </FabricContextProvider>
+                </CustomCanavsContextProvider>
+            </CanvasStoreProvider>
+        </StoreProvider>
     );
 }
 

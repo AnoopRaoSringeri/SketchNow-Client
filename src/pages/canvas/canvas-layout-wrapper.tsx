@@ -1,13 +1,13 @@
 import { Circle, Cylinder, LineChart, Move, Pencil, RectangleHorizontal, Square } from "lucide-react";
 
-import { OptionsButton } from "@/components/Options";
-import { ZoomController } from "@/components/Zoom";
+import { OptionsButton } from "@/components/mini-components/options";
+import { ZoomController } from "@/components/mini-components/zoom";
 import { Option } from "@/types/layout";
 
-import Canvas from "./Canvas";
-import CanvasOptions from "./CanvasOptions";
-import LeftOptions from "./OptionsLayout";
-import TopCanvasOptions from "./TopOptions";
+import Canvas from "./canvas";
+import CanvasOptions from "./canvas-options";
+import LeftOptions from "./options-layout";
+import TopCanvasOptions from "./top-options";
 
 // import { MiniMap } from"@/components/MiniMap";
 

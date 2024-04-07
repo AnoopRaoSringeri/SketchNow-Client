@@ -2,11 +2,10 @@ import { Palette, PencilLine } from "lucide-react";
 import { observer } from "mobx-react";
 import { ColorPicker, useColor } from "react-color-palette";
 
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTriggerButton } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { useCanvas } from "@/hooks/canvas-context";
-import { useCanvasStore } from "@/stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 
 // TODO: Resolve errors
 const TopCanvasOptions = observer(function TopCanvasOptions() {
@@ -15,13 +14,11 @@ const TopCanvasOptions = observer(function TopCanvasOptions() {
     const [color, setColor] = useColor(canvasStore.Options.stroke);
 
     return (
-        <div className="fixed top-0 z-[1] mt-5 flex flex-row items-center gap-1">
+        <div className="fixed top-5 z-[1] flex flex-row items-center gap-1">
             <Popover>
-                <PopoverTrigger>
-                    <Button variant="secondary">
-                        <PencilLine />
-                    </Button>
-                </PopoverTrigger>
+                <PopoverTriggerButton variant="secondary">
+                    <PencilLine />
+                </PopoverTriggerButton>
                 <PopoverContent>
                     <Slider
                         value={[canvasStore.Options.strokeWidth]}
@@ -35,11 +32,9 @@ const TopCanvasOptions = observer(function TopCanvasOptions() {
                 </PopoverContent>
             </Popover>
             <Popover>
-                <PopoverTrigger>
-                    <Button variant="secondary">
-                        <Palette />
-                    </Button>
-                </PopoverTrigger>
+                <PopoverTriggerButton variant="secondary">
+                    <Palette />
+                </PopoverTriggerButton>
                 <PopoverContent>
                     <ColorPicker
                         color={color}

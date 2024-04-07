@@ -2,22 +2,23 @@ import { Minus, Plus, Search } from "lucide-react";
 import { observer } from "mobx-react";
 
 import { useCanvas } from "@/hooks/canvas-context";
-import { useCanvasStore } from "@/stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
 import { ZOOM_STEP } from "@/types/canvas";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export const ZoomController = observer(function ZoomController() {
     const canvasStore = useCanvasStore();
     const { canvas } = useCanvas();
 
     return (
-        <div className="absolute bottom-10 right-20 flex-col justify-center rounded border border-solid border-gray-50 p-5 align-middle">
-            <Button>
+        <div className="fixed bottom-5 right-5 z-[1] flex flex-row items-center justify-center gap-2 rounded border border-solid border-gray-100 p-2">
+            <Button size="sm">
                 <Search />
             </Button>
             <div>{canvasStore.Zoom + "%"}</div>
             <Button
+                size="sm"
                 onClick={() => {
                     if (canvas) {
                         const zoomOutValue = canvas.getZoom() - ZOOM_STEP;
@@ -33,6 +34,7 @@ export const ZoomController = observer(function ZoomController() {
                 <Minus />
             </Button>
             <Button
+                size="sm"
                 onClick={() => {
                     if (canvas) {
                         const zoomInValue = canvas.getZoom() + ZOOM_STEP;
