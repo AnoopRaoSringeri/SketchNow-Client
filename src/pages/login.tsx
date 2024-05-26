@@ -1,5 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import { useStore } from "@/api-stores/store-provider";
@@ -23,18 +24,19 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [opened, { open, close, toggle }] = useDisclosure(false);
-
+    const navigate = useNavigate();
     const register = async () => {
         setLoading(true);
         const response = await authStore.Login({ username, password, email });
         if (response) {
-            toast.success("Loggedin successfully");
+            toast.success("Logged in successfully");
             close();
             setPassword("");
             setEmail("");
             setPassword("");
             localStorage.setItem("IsAuthenticated", "true");
             authStore.IsSessionValid = true;
+            navigate("/sketch");
         } else {
             toast.error("User login failed");
             // toast.error("User login failed", { description: response.error.message });

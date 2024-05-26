@@ -15,6 +15,7 @@ class CanvasStore {
     private _view: Views = "infinite";
     private _zoom: number = 100;
     //
+    private _name = "";
     private _canvaseBoard: CanvasBoard = {
         size: Layout[this._view],
         scale: 1,
@@ -36,6 +37,15 @@ class CanvasStore {
     ];
     private selectedLayer: string = this.layers[0].id;
 
+    get SketchName() {
+        return this._name;
+    }
+
+    set SketchName(name: string) {
+        runInAction(() => {
+            this._name = name;
+        });
+    }
     get CanvasSize() {
         return this._canvaseBoard.size;
     }

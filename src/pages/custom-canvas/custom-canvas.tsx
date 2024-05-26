@@ -1,8 +1,8 @@
 import { observer } from "mobx-react";
 import { useLayoutEffect, useRef } from "react";
 
-import { useCustomCanvas } from "../../hooks/custom-canvas-context";
-import { useCanvasStore } from "../../data-stores/canvas-store";
+import { useCanvasStore } from "@/data-stores/canvas-store";
+import { useCustomCanvas } from "@/hooks/custom-canvas-context";
 
 export const CustomCanvas = observer(function CustomCanvas() {
     const canvasStore = useCanvasStore();

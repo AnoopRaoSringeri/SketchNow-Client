@@ -12,7 +12,7 @@ const LeftOptions = observer(function LeftOptions({ options }: { options: Option
     const isElementLocked = canvasStore.LockElementType;
 
     return (
-        <div className="fixed left-5 z-[1]  flex flex-col items-center gap-1">
+        <div className="absolute left-5 z-[1]  flex flex-col items-center gap-1">
             <Button
                 onClick={() => {
                     canvasStore.toggleLockElementType();
@@ -23,6 +23,7 @@ const LeftOptions = observer(function LeftOptions({ options }: { options: Option
             </Button>
             {options.map((o) => (
                 <Button
+                    size="sm"
                     variant={selected == o.value ? "default" : "secondary"}
                     key={o.value}
                     onClick={() => {

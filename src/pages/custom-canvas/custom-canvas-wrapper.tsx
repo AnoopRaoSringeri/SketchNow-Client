@@ -5,7 +5,7 @@ import CustomCanvasOptions from "./custom-canvasOptions";
 
 export const CustomCanvasWrapper = observer(function CustomCanvasWrapper() {
     return (
-        <div className="flex size-full overflow-hidden bg-gray-200">
+        <div className="flex size-full overflow-hidden bg-primary-foreground">
             <div className="absolute flex size-full items-center justify-center bg-transparent">
                 <CustomCanvasOptions />
             </div>

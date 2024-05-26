@@ -1,9 +1,11 @@
 import { createContext, ReactNode, useContext } from "react";
 
 import AuthStore from "@/api-stores/auth-store";
+import SketchStore from "@/api-stores/sketch-store";
 
 const store = {
-    authStore: new AuthStore()
+    authStore: new AuthStore(),
+    sketchStore: new SketchStore()
 };
 
 const StoreContex = createContext(store);

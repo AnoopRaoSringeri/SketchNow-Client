@@ -6,7 +6,7 @@ import { Option } from "@/types/layout";
 
 import Canvas from "./canvas";
 import CanvasOptions from "./canvas-options";
-import LeftOptions from "./options-layout";
+import LeftOptions from "./left-options";
 import TopCanvasOptions from "./top-options";
 
 // import { MiniMap } from"@/components/MiniMap";
@@ -23,7 +23,7 @@ const LeftOptionLists: Option[] = [
 
 const CanvasLayoutWrapper = function CanvasLayoutWrapper() {
     return (
-        <div className="flex size-full overflow-hidden bg-gray-200">
+        <div className="relative flex flex-1 overflow-hidden bg-gray-200">
             <div className="absolute flex size-full items-center justify-center bg-slate-300">
                 <TopCanvasOptions />
                 <LeftOptions options={LeftOptionLists} />

@@ -3,7 +3,6 @@ import { observer } from "mobx-react";
 import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import json from "@/data/data.json";
 import { useCanvasStore } from "@/data-stores/canvas-store";
 import { _createElement, _updateElement } from "@/lib/canvas-helpers";
 import { BaseFabricElement, Position } from "@/types/canvas";
@@ -14,7 +13,7 @@ const WIDTH = 250;
 const HEIGHT = 200;
 interface FabricContext {
     canvas: fabric.Canvas | null;
-    initCanvas: (element: HTMLCanvasElement | null, options: fabric.ICanvasOptions) => unknown;
+    initCanvas: (element: HTMLCanvasElement | null, options: fabric.ICanvasOptions, data?: any) => unknown;
     setCanvas: (canvas: fabric.Canvas | null) => unknown;
 }
 
@@ -32,7 +31,7 @@ export const FabricContextProvider = observer(function FabricContextProvider({
     const origin = useRef<Position | null>(null);
     const currentPointer = useRef<Position | null>(null);
     const ref = useRef(null);
-    const initCanvas = useCallback((element: HTMLCanvasElement | null, options: fabric.ICanvasOptions) => {
+    const initCanvas = useCallback((element: HTMLCanvasElement | null, options: fabric.ICanvasOptions, data?: any) => {
         const canvasOptions: fabric.ICanvasOptions = {
             ...options
         };
@@ -46,10 +45,12 @@ export const FabricContextProvider = observer(function FabricContextProvider({
             height: HEIGHT,
             selection: false
         });
-        // fabricCanvas.loadFromJSON(json, function () {
-        //     fabricCanvas.requestRenderAll();
-        // });
-        // console.log(fabricCanvas.getObjects());
+        if (data) {
+            fabricCanvas.loadFromJSON(data, function () {
+                fabricCanvas.requestRenderAll();
+            });
+            console.log(fabricCanvas.getObjects());
+        }
         fabricCanvas.requestRenderAll();
         setMinimap(fabricCanvasMini);
     }, []);

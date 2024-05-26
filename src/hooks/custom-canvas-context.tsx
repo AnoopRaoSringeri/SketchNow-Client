@@ -33,12 +33,12 @@ export const CustomCanavsContextProvider = observer(function CustomCanavsContext
             if (context) {
                 context.beginPath();
                 context.lineWidth = 5;
-                context.strokeStyle = "#000";
+                context.strokeStyle = "#fff";
                 context.moveTo(200, 200);
                 context.lineTo(300, 300);
                 context.stroke();
 
-                context.fillStyle = "#000";
+                context.fillStyle = "#fff";
                 context.beginPath();
                 // context.arc(startPosition.x, startPosition.y, 2, 0, 2 * Math.PI);
                 context.fill();

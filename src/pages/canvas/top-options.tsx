@@ -4,8 +4,8 @@ import { ColorPicker, useColor } from "react-color-palette";
 
 import { Popover, PopoverContent, PopoverTriggerButton } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
-import { useCanvas } from "@/hooks/canvas-context";
 import { useCanvasStore } from "@/data-stores/canvas-store";
+import { useCanvas } from "@/hooks/canvas-context";
 
 // TODO: Resolve errors
 const TopCanvasOptions = observer(function TopCanvasOptions() {
@@ -14,7 +14,7 @@ const TopCanvasOptions = observer(function TopCanvasOptions() {
     const [color, setColor] = useColor(canvasStore.Options.stroke);
 
     return (
-        <div className="fixed top-5 z-[1] flex flex-row items-center gap-1">
+        <div className="absolute top-5 z-[1] flex flex-row items-center gap-1">
             <Popover>
                 <PopoverTriggerButton variant="secondary">
                     <PencilLine />
