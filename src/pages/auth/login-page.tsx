@@ -1,16 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { observer } from "mobx-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import { z } from "zod";
 
-import { useStore } from "@/api-stores/store-provider";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
     username: z.string().min(2).max(50),
@@ -19,9 +16,7 @@ const formSchema = z.object({
 });
 
 export const LogInPage = observer(function LogInPage() {
-    const { authStore } = useStore();
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const { loading, logIn } = useAuth();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -31,18 +26,7 @@ export const LogInPage = observer(function LogInPage() {
         }
     });
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        setLoading(true);
-        const response = await authStore.Login(values);
-        if (response) {
-            toast.success("Logged in successfully");
-            localStorage.setItem("IsAuthenticated", "true");
-            authStore.IsSessionValid = true;
-            navigate("/sketch");
-        } else {
-            toast.error("User login failed");
-            // toast.error("User login failed", { description: response.error.message });
-        }
-        setLoading(false);
+        logIn(values);
     }
 
     return (
@@ -109,7 +93,7 @@ export const LogInPage = observer(function LogInPage() {
             </div>
             <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link to="/" className="underline">
+                <Link to="/register" className="underline">
                     Sign up
                 </Link>
             </div>

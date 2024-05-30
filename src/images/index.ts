@@ -1,3 +1,2 @@
-import SketchNow from "../../public/images/sketch-now.png";
-
+import SketchNow from "./sketch-now.png";
 export { SketchNow };

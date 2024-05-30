@@ -1,8 +1,8 @@
 import { User } from "lucide-react";
 import { observer } from "mobx-react";
-import { Outlet, useNavigate } from "react-router";
+import { useEffect } from "react";
+import { Outlet } from "react-router";
 
-import { useStore } from "@/api-stores/store-provider";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -15,19 +15,17 @@ import {
 import { Image } from "@/components/ui/image";
 import { LayoutToggle } from "@/components/ui/layout-toggle";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { useAuth } from "@/hooks/use-auth";
 import { SketchNow } from "@/images";
 
 // "absolute  top-0 z-50 w-full border-b border-border/40 bg-background/95 opacity-0 backdrop-blur transition-all hover:sticky hover:opacity-100 supports-[backdrop-filter]:bg-background/60";
 
 export const AppShellPrimary = observer(function AppShell2() {
-    const { authStore } = useStore();
-    const navigate = useNavigate();
-    const logout = async () => {
-        await authStore.Logout();
-        localStorage.removeItem("IsAuthenticated");
-        authStore.IsSessionValid = false;
-        navigate("/");
-    };
+    const { logOut, refreshToken } = useAuth();
+
+    useEffect(() => {
+        refreshToken();
+    }, []);
     return (
         <div className="relative flex min-h-screen w-screen flex-col overflow-hidden bg-background">
             <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -73,6 +71,8 @@ export const AppShellPrimary = observer(function AppShell2() {
                         </div>
                     </div>
                     <nav className="ml-1 flex items-center">
+                        <ModeToggle />
+                        <LayoutToggle />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="simple" size="icon">
@@ -85,11 +85,9 @@ export const AppShellPrimary = observer(function AppShell2() {
                                 <DropdownMenuItem>Settings</DropdownMenuItem>
                                 <DropdownMenuItem>Support</DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                                <DropdownMenuItem onClick={logOut}>Logout</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <ModeToggle />
-                        <LayoutToggle />
                     </nav>
                 </div>
             </header>

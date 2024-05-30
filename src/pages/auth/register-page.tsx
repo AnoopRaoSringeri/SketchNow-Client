@@ -1,15 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 
-import { useStore } from "@/api-stores/store-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
     username: z.string().min(2).max(50),
@@ -18,9 +16,7 @@ const formSchema = z.object({
 });
 
 export function RegisterPage() {
-    const { authStore } = useStore();
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const { register, loading } = useAuth();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -30,16 +26,8 @@ export function RegisterPage() {
         }
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        setLoading(true);
-        const res = await authStore.Register(values);
-        if (res) {
-            toast.success("User registered successfully");
-            navigate("/login");
-        } else {
-            toast.error("User registration failed");
-        }
-        setLoading(false);
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        register(values);
     }
 
     return (
@@ -103,7 +91,7 @@ export function RegisterPage() {
 
                 <div className="mt-4 text-center text-sm">
                     Already have an account?{" "}
-                    <Link to="/login" className="underline">
+                    <Link to="/" className="underline">
                         Sign in
                     </Link>
                 </div>

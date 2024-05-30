@@ -4,12 +4,12 @@ import { BrowserRouter } from "react-router-dom";
 
 import { Loader } from "@/components/ui/loader";
 import { useLayout } from "@/hooks/layout-provider";
-import { Auth } from "@/pages/auth-page";
+import { Auth } from "@/pages/auth/auth-page";
+import { LogInPage } from "@/pages/auth/login-page";
+import { RegisterPage } from "@/pages/auth/register-page";
 import CanvasLayoutWrapper from "@/pages/canvas/canvas-layout-wrapper";
 import SketchList from "@/pages/canvas/sketches";
 import { CustomCanvasWrapper } from "@/pages/custom-canvas/custom-canvas-wrapper";
-import { LogInPage } from "@/pages/login-page";
-import { RegisterPage } from "@/pages/register-page";
 
 function AppContainer() {
     const { element } = useLayout();
@@ -21,15 +21,15 @@ function AppContainer() {
                         path=""
                         element={
                             <Suspense fallback={<Loader />}>
-                                <RegisterPage />
+                                <LogInPage />
                             </Suspense>
                         }
                     />
                     <Route
-                        path="login"
+                        path="register"
                         element={
                             <Suspense fallback={<Loader />}>
-                                <LogInPage />
+                                <RegisterPage />
                             </Suspense>
                         }
                     />
