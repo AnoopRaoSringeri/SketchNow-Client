@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { observer } from "mobx-react";
 import { useEffect } from "react";
 import { Outlet } from "react-router";
+import { NavLink } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import { LayoutToggle } from "@/components/ui/layout-toggle";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { SketchNow } from "@/images";
+import { cn } from "@/lib/utils";
 
 // "absolute  top-0 z-50 w-full border-b border-border/40 bg-background/95 opacity-0 backdrop-blur transition-all hover:sticky hover:opacity-100 supports-[backdrop-filter]:bg-background/60";
 
@@ -42,21 +44,54 @@ export const AppShellPrimary = observer(function AppShell2() {
                             <span className="hidden font-bold sm:inline-block">SketchNow</span>
                         </a>
                         <nav className="flex items-center gap-4 text-sm lg:gap-6">
-                            <a className="text-foreground transition-colors hover:text-foreground/80" href="/sketch">
+                            <NavLink
+                                className={({ isActive }) => {
+                                    return cn(
+                                        "transition-colors hover:text-foreground/80",
+                                        isActive ? "text-foreground" : "text-foreground/60"
+                                    );
+                                }}
+                                end
+                                to="/sketch"
+                            >
                                 Home
-                            </a>
-                            <a
-                                className="text-foreground/60 transition-colors hover:text-foreground/80"
-                                href="/sketch/new"
+                            </NavLink>
+                            <NavLink
+                                className={({ isActive }) => {
+                                    return cn(
+                                        "transition-colors hover:text-foreground/80",
+                                        isActive ? "text-foreground" : "text-foreground/60"
+                                    );
+                                }}
+                                end
+                                to="/sketch/new"
                             >
                                 Canvas
-                            </a>
-                            <a
-                                className="text-foreground/60 transition-colors hover:text-foreground/80"
-                                href="/sketch/custom/new"
+                            </NavLink>
+                            <NavLink
+                                className={({ isActive }) => {
+                                    return cn(
+                                        "transition-colors hover:text-foreground/80",
+                                        isActive ? "text-foreground" : "text-foreground/60"
+                                    );
+                                }}
+                                end
+                                to="/sketch/custom/new"
                             >
                                 Custom canvas
-                            </a>
+                            </NavLink>
+                            <NavLink
+                                className={({ isActive }) => {
+                                    return cn(
+                                        "transition-colors hover:text-foreground/80",
+                                        isActive ? "text-foreground" : "text-foreground/60"
+                                    );
+                                }}
+                                end
+                                to="/sketch/playground"
+                            >
+                                Playground
+                            </NavLink>
                         </nav>
                     </div>
                     <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

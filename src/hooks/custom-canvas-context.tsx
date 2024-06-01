@@ -1,6 +1,8 @@
 import { observer } from "mobx-react";
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
+import { CanvasBoard } from "@/lib/canvas/canvas-board";
+
 import { useCanvasStore } from "../data-stores/canvas-store";
 import { Position } from "../types/canvas";
 
@@ -19,6 +21,7 @@ export const CustomCanavsContextProvider = observer(function CustomCanavsContext
 }: {
     children: React.ReactNode;
 }) {
+    const board = new CanvasBoard(useRef<HTMLCanvasElement>(null));
     const canvasStore = useCanvasStore();
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [action, setAction] = useState<CanvasAction>("none");

@@ -11,6 +11,8 @@ import CanvasLayoutWrapper from "@/pages/canvas/canvas-layout-wrapper";
 import SketchList from "@/pages/canvas/sketches";
 import { CustomCanvasWrapper } from "@/pages/custom-canvas/custom-canvas-wrapper";
 
+import { PlaygroundCanvas } from "./playground/play-ground-canvas";
+
 function AppContainer() {
     const { element } = useLayout();
     return (
@@ -65,6 +67,14 @@ function AppContainer() {
                         element={
                             <Suspense fallback={<Loader />}>
                                 <CustomCanvasWrapper />
+                            </Suspense>
+                        }
+                    />
+                    <Route
+                        path="/sketch/playground"
+                        element={
+                            <Suspense fallback={<Loader />}>
+                                <PlaygroundCanvas />
                             </Suspense>
                         }
                     />

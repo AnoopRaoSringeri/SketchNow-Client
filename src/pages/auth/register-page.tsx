@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -91,9 +91,9 @@ export function RegisterPage() {
 
                 <div className="mt-4 text-center text-sm">
                     Already have an account?{" "}
-                    <Link to="/" className="underline">
+                    <NavLink to="/" className="underline">
                         Sign in
-                    </Link>
+                    </NavLink>
                 </div>
             </CardContent>
         </Card>

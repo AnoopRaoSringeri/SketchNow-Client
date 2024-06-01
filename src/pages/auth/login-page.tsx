@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { observer } from "mobx-react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -71,9 +71,12 @@ export const LogInPage = observer(function LogInPage() {
                                 <FormItem>
                                     <div className="flex items-center">
                                         <FormLabel>Password</FormLabel>
-                                        <Link to="/forgot-password" className="ml-auto inline-block text-sm underline">
+                                        <NavLink
+                                            to="/forgot-password"
+                                            className="ml-auto inline-block text-sm underline"
+                                        >
                                             Forgot your password?
-                                        </Link>
+                                        </NavLink>
                                     </div>
                                     <FormControl>
                                         <Input className="space-y-0" placeholder="Password" {...field} />
@@ -93,9 +96,9 @@ export const LogInPage = observer(function LogInPage() {
             </div>
             <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link to="/register" className="underline">
+                <NavLink to="/register" className="underline">
                     Sign up
-                </Link>
+                </NavLink>
             </div>
         </div>
     );

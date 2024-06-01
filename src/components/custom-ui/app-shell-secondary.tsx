@@ -1,7 +1,7 @@
 import { LogOut, LucideIcon, Package2, PanelLeft, Search, Settings, User } from "lucide-react";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 import { useStore } from "@/api-stores/store-provider";
 import { Button } from "@/components/ui/button";
@@ -65,7 +65,7 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
                         <TooltipProvider key={a.label} delayDuration={0}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Link
+                                    <NavLink
                                         to={a.link}
                                         className={cn(
                                             "flex size-9 items-center justify-center transition-colors md:size-8",
@@ -79,7 +79,7 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
                                     >
                                         <a.Icon className="size-5 transition-all hover:scale-105" />
                                         <span className="sr-only">{a.label}</span>
-                                    </Link>
+                                    </NavLink>
                                 </TooltipTrigger>
                                 <TooltipContent side="right">{a.label}</TooltipContent>
                             </Tooltip>
@@ -90,13 +90,13 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link
+                                <NavLink
                                     to="#"
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                 >
                                     <Settings className="size-5" />
                                     <span className="sr-only">Settings</span>
-                                </Link>
+                                </NavLink>
                             </TooltipTrigger>
                             <TooltipContent side="right">Settings</TooltipContent>
                         </Tooltip>
@@ -104,14 +104,14 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link
+                                <NavLink
                                     to="/"
                                     className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:size-8"
                                     onClick={logout}
                                 >
                                     <LogOut className="size-5" />
                                     <span className="sr-only">Logout</span>
-                                </Link>
+                                </NavLink>
                             </TooltipTrigger>
                             <TooltipContent side="right">Logout</TooltipContent>
                         </Tooltip>
@@ -135,22 +135,22 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
 
                         <SheetContent side="left" className="sm:max-w-xs">
                             <nav className="grid gap-6 text-lg font-medium">
-                                <Link
+                                <NavLink
                                     to="#"
                                     className="group flex size-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                                 >
                                     <Package2 className="size-5 transition-all group-hover:scale-110" />
                                     <span className="sr-only">Acme Inc</span>
-                                </Link>
+                                </NavLink>
                                 {navbarActions.map((a) => (
-                                    <Link
+                                    <NavLink
                                         key={a.label}
                                         to={a.link}
                                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                                     >
                                         <a.Icon className="size-5" />
                                         {a.label}
-                                    </Link>
+                                    </NavLink>
                                 ))}
                             </nav>
                         </SheetContent>
@@ -159,13 +159,13 @@ export const AppShell = observer(function AppShell({ navbarActions, navbarVisble
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
-                                    <Link to="#">Dashboard</Link>
+                                    <NavLink to="#">Dashboard</NavLink>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
-                                    <Link to="#">Products</Link>
+                                    <NavLink to="#">Products</NavLink>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
