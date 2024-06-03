@@ -1,36 +1,55 @@
 import axios, { AxiosResponse } from "axios";
-import { fabric } from "fabric";
 import { makeAutoObservable } from "mobx";
 
 import { BaseUrl, getRequestConfig } from "@/api-stores/auth-store";
+import { CanvasMetadata, SavedCanvas } from "@/types/canvas";
 
 class SketchStore {
     constructor() {
         makeAutoObservable(this);
     }
 
-    async GetAllSketches(): Promise<[]> {
+    async GetAllSketches(): Promise<SavedCanvas[]> {
         try {
-            const { data }: AxiosResponse = await axios.get(`${BaseUrl}sketches`, getRequestConfig(true));
+            const { data }: AxiosResponse<SavedCanvas[]> = await axios.get(
+                `${BaseUrl}sketches`,
+                getRequestConfig(true)
+            );
             return data;
         } catch (e) {
             return [];
         }
     }
 
-    async GetSketchById(id: string): Promise<any> {
+    async GetSketchById(id: string): Promise<SavedCanvas | null> {
         try {
-            const { data }: AxiosResponse = await axios.get(`${BaseUrl}sketch/${id}`, getRequestConfig(true));
+            const { data }: AxiosResponse<SavedCanvas> = await axios.get(
+                `${BaseUrl}sketch/${id}`,
+                getRequestConfig(true)
+            );
             return data;
         } catch (e) {
             return null;
         }
     }
 
-    async SaveSketch(sketchMetadata: { version: string; objects: fabric.Object[] }, name: string): Promise<boolean> {
+    async SaveSketch(sketchMetadata: CanvasMetadata, name: string): Promise<SavedCanvas | null> {
+        try {
+            const { data }: AxiosResponse<SavedCanvas> = await axios.post(
+                `${BaseUrl}create`,
+                { name, metadata: sketchMetadata, createdBy: "abc" },
+                getRequestConfig(true)
+            );
+            return data;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async UpdateSketch(id: string, sketchMetadata: CanvasMetadata, name: string): Promise<boolean> {
         try {
             await axios.post(
-                `${BaseUrl}create`,
+                `${BaseUrl}update/${id}`,
                 { name, metadata: sketchMetadata, createdBy: "abc" },
                 getRequestConfig(true)
             );
@@ -40,17 +59,9 @@ class SketchStore {
         }
     }
 
-    async UpdateSketch(
-        id: string,
-        sketchMetadata: { version: string; objects: fabric.Object[] },
-        name: string
-    ): Promise<boolean> {
+    async DeleteSketch(id: string): Promise<boolean> {
         try {
-            await axios.post(
-                `${BaseUrl}update/${id}`,
-                { name, metadata: sketchMetadata, createdBy: "abc" },
-                getRequestConfig(true)
-            );
+            await axios.delete(`${BaseUrl}delete/${id}`, getRequestConfig(true));
             return true;
         } catch (e) {
             return false;

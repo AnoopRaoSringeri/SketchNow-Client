@@ -1,10 +1,11 @@
 import { LucideIcon } from "lucide-react";
 
-import { ElementType, Position } from "./canvas";
+import { Position } from "./canvas";
+import { ElementEnum } from "./custom-canvas";
 
 export interface Option {
     icon: LucideIcon;
-    value: ElementType;
+    value: ElementEnum;
 }
 
 export type OptionPanelPosition = "top" | "bottom" | "right" | "left";

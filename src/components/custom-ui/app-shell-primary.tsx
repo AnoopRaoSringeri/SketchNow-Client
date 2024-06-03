@@ -76,18 +76,6 @@ export const AppShellPrimary = observer(function AppShell2() {
                                     );
                                 }}
                                 end
-                                to="/sketch/custom/new"
-                            >
-                                Custom canvas
-                            </NavLink>
-                            <NavLink
-                                className={({ isActive }) => {
-                                    return cn(
-                                        "transition-colors hover:text-foreground/80",
-                                        isActive ? "text-foreground" : "text-foreground/60"
-                                    );
-                                }}
-                                end
                                 to="/sketch/playground"
                             >
                                 Playground

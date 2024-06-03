@@ -4,9 +4,18 @@ import path from "path";
 import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 
+import { ReactCompilerConfig } from "./react-compiler.config";
+
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react(), mkcert()],
+    plugins: [
+        react({
+            babel: {
+                plugins: [["babel-plugin-react-compiler", ReactCompilerConfig]]
+            }
+        }),
+        mkcert()
+    ],
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src")

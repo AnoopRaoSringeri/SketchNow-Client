@@ -1,52 +1,77 @@
-import { Save } from "lucide-react";
+import { Circle, Cylinder, LineChart, Move, Pencil, RectangleHorizontal, Save, Square } from "lucide-react";
 import { observer } from "mobx-react";
-import { useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
 import { useStore } from "@/api-stores/store-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCanvasStore } from "@/data-stores/canvas-store";
-import { useCanvas } from "@/hooks/canvas-context";
+import { useCanvas } from "@/hooks/use-canvas";
+import { ElementEnum } from "@/types/custom-canvas";
+import { Option } from "@/types/layout";
 
-const CanvasOptions = observer(function CanvasOptions() {
-    const { canvas } = useCanvas();
-    const { sketchStore } = useStore();
-    const canvasStore = useCanvasStore();
+import ElementSelector from "./element-selector";
+
+const LeftOptionLists: Option[] = [
+    { icon: Move, value: ElementEnum.Move },
+    { icon: Pencil, value: ElementEnum.Pencil },
+    { icon: RectangleHorizontal, value: ElementEnum.Rectangle },
+    { icon: Circle, value: ElementEnum.Circle },
+    { icon: Square, value: ElementEnum.Square },
+    { icon: LineChart, value: ElementEnum.Line },
+    { icon: Cylinder, value: ElementEnum.Ellipse }
+];
+
+const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }) {
     const { id } = useParams<{ id: string }>();
-    if (!canvas) {
-        return <div />;
-    }
+    const navigate = useNavigate();
+    const [sketchName, setSketchName] = useState(name);
+    const { sketchStore } = useStore();
+    const playgroundCanvas = useCanvas(id ?? "new");
 
-    const save = async () => {
+    useEffect(() => {
+        setSketchName(name);
+    }, [name]);
+
+    const saveBoard = async () => {
+        console.log(playgroundCanvas.toJSON());
         if (id) {
-            await sketchStore.UpdateSketch(id, canvas.toJSON(["data", "fill", "fillStyle"]), canvasStore.SketchName);
+            await sketchStore.UpdateSketch(id, playgroundCanvas.toJSON(), sketchName);
             toast.success("Sketch saved successfully");
         } else {
-            await sketchStore.SaveSketch(canvas.toJSON(["data", "fill", "fillStyle"]), canvasStore.SketchName);
-            toast.success("Sketch updated successfully");
+            const response = await sketchStore.SaveSketch(playgroundCanvas.toJSON(), sketchName);
+            if (response) {
+                toast.success("Sketch updated successfully");
+                navigate(`/sketch/${response._id}`);
+            }
         }
     };
 
     return (
-        <div className="absolute right-5 top-5 z-[1]">
-            <div className="flex w-full max-w-sm items-center space-x-2">
-                <Input
-                    type="text"
-                    placeholder="Name"
-                    value={canvasStore.SketchName}
-                    onChange={(e) => {
-                        canvasStore.SketchName = e.target.value;
+        <div className="absolute flex size-full overflow-hidden bg-transparent">
+            <div className="absolute flex size-full items-center justify-center bg-transparent">
+                <ElementSelector
+                    options={LeftOptionLists}
+                    onChange={(eleType) => {
+                        playgroundCanvas.ElementType = eleType;
                     }}
                 />
-                <Button
-                    onClick={() => {
-                        console.log(canvas.toJSON(["data", "fill", "fillStyle"]));
-                        save();
-                    }}
-                >
-                    <Save />
-                </Button>
+                <div className="absolute right-5 top-5 z-[100]">
+                    <div className="flex w-full max-w-sm items-center space-x-2">
+                        <Input
+                            type="text"
+                            placeholder="Name"
+                            value={sketchName}
+                            onChange={(e) => {
+                                setSketchName(e.target.value);
+                            }}
+                        />
+                        <Button size="sm" onClick={saveBoard}>
+                            <Save />
+                        </Button>
+                    </div>
+                </div>
             </div>
         </div>
     );

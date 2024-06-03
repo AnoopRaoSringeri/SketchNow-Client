@@ -7,9 +7,7 @@ import { useLayout } from "@/hooks/layout-provider";
 import { Auth } from "@/pages/auth/auth-page";
 import { LogInPage } from "@/pages/auth/login-page";
 import { RegisterPage } from "@/pages/auth/register-page";
-import CanvasLayoutWrapper from "@/pages/canvas/canvas-layout-wrapper";
 import SketchList from "@/pages/canvas/sketches";
-import { CustomCanvasWrapper } from "@/pages/custom-canvas/custom-canvas-wrapper";
 
 import { PlaygroundCanvas } from "./playground/play-ground-canvas";
 
@@ -47,26 +45,10 @@ function AppContainer() {
                         }
                     />
                     <Route
-                        path="/sketch/new"
-                        element={
-                            <Suspense fallback={<Loader />}>
-                                <CanvasLayoutWrapper />
-                            </Suspense>
-                        }
-                    />
-                    <Route
                         path="/sketch/:id"
                         element={
                             <Suspense fallback={<Loader />}>
-                                <CanvasLayoutWrapper />
-                            </Suspense>
-                        }
-                    />
-                    <Route
-                        path="/sketch/custom/new"
-                        element={
-                            <Suspense fallback={<Loader />}>
-                                <CustomCanvasWrapper />
+                                <PlaygroundCanvas />
                             </Suspense>
                         }
                     />
