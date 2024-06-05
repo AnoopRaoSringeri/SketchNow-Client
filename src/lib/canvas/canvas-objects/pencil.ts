@@ -1,16 +1,30 @@
-import { Position, Size } from "@/types/canvas";
-import { ElementEnum, ICanvasObject, IObjectValue, IToSVGOptions } from "@/types/custom-canvas";
+import { v4 as uuid } from "uuid";
 
-export class Pencil implements Partial<ICanvasObject> {
+import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
+import { Position, Size } from "@/types/canvas";
+import {
+    ElementEnum,
+    ICanvasObject,
+    ICanvasObjectWithId,
+    IObjectValue,
+    IObjectValueWithId,
+    IToSVGOptions,
+    MouseAction
+} from "@/types/custom-canvas";
+
+export class Pencil implements ICanvasObjectWithId {
     type: ElementEnum = ElementEnum.Pencil;
-    constructor(v: Partial<IObjectValue>) {
+    id = uuid();
+    style = DefaultStyle;
+    constructor(v: IObjectValueWithId) {
         this.points = v.points ?? [];
+        this.id = v.id;
+        this.style = v.style ?? DefaultStyle;
     }
     points: [number, number][] = [];
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.restore();
-        ctx.strokeStyle = "#fff";
+        CanvasHelper.applyStyles(ctx, this.style);
         ctx.beginPath();
         if (this.points.length > 0) {
             this.points.forEach((p, i) => {
@@ -23,12 +37,12 @@ export class Pencil implements Partial<ICanvasObject> {
             });
         }
         ctx.stroke();
-        ctx.save();
+        ctx.closePath();
+        ctx.restore();
     }
 
     create(ctx: CanvasRenderingContext2D) {
-        ctx.restore();
-        ctx.strokeStyle = "#fff";
+        CanvasHelper.applyStyles(ctx, this.style);
         ctx.beginPath();
         const [x, y] = this.points[0];
         ctx.moveTo(x, y);
@@ -36,15 +50,48 @@ export class Pencil implements Partial<ICanvasObject> {
     }
 
     update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         const { points = [] } = objectValue;
         if (points.length > 0) {
+            const [prevX, prevY] = this.points[this.points.length - 1];
             const [x, y] = points[0];
             ctx.lineTo(x, y);
             ctx.stroke();
-            const [prevX, prevY] = this.points[this.points.length - 1];
             if (prevX != x || prevY != y) {
                 this.points.push([x, y]);
             }
+        }
+    }
+
+    move(ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) {
+        const { x, y } = position;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
+        }
+        ctx.beginPath();
+        if (this.points.length > 0) {
+            this.points.forEach((p, i) => {
+                const [px, py] = p;
+                const offsetX = x + px;
+                const offsetY = y + py;
+                if (i == 0) {
+                    ctx.moveTo(offsetX, offsetY);
+                } else {
+                    ctx.lineTo(offsetX, offsetY);
+                }
+            });
+            ctx.stroke();
+        }
+        if (action == "up") {
+            ctx.closePath();
+            ctx.restore();
+            this.points = this.points.map((p) => {
+                const [px, py] = p;
+                const offsetX = x + px;
+                const offsetY = y + py;
+                return [offsetX, offsetY];
+            });
         }
     }
 
@@ -62,15 +109,19 @@ export class Pencil implements Partial<ICanvasObject> {
                 )
                 .join(" ");
         }
-        return `<path d="${s}" class="fill-transparent stroke-white"/>`;
+        return `<path d="${s}" style="${CanvasHelper.getHTMLStyle(this.style, { height, width })}" />`;
     }
+
+    getValues() {
+        return {
+            points: this.points
+        };
+    }
+
     delete() {}
     onSelect() {}
     set<T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) {
         console.log(key, value);
-    }
-    move(position: Position) {
-        console.log(position);
     }
     resize(size: Size) {
         console.log(size);

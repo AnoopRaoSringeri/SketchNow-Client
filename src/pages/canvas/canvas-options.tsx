@@ -11,6 +11,7 @@ import { useCanvas } from "@/hooks/use-canvas";
 import { ElementEnum } from "@/types/custom-canvas";
 import { Option } from "@/types/layout";
 
+import { CanvasStyleEditor } from "./canvas-style-editor";
 import ElementSelector from "./element-selector";
 
 const LeftOptionLists: Option[] = [
@@ -50,7 +51,7 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
 
     return (
         <div className="absolute flex size-full overflow-hidden bg-transparent">
-            <div className="absolute flex size-full items-center justify-center bg-transparent">
+            <div className=" flex size-full items-center justify-center bg-transparent">
                 <ElementSelector
                     options={LeftOptionLists}
                     onChange={(eleType) => {
@@ -72,6 +73,7 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
                         </Button>
                     </div>
                 </div>
+                <CanvasStyleEditor />
             </div>
         </div>
     );

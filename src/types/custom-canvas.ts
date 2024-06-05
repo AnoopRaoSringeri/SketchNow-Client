@@ -9,22 +9,37 @@ export interface IObjectValue {
     sa: number;
     ea: number;
     points: [number, number][];
+    style: IObjectStyle;
 }
 
-export interface IToSVGOptions extends Size {}
+export interface IObjectStyle {
+    strokeStyle: string;
+    fillColor: string;
+    strokeWidth: number;
+}
 
+export interface IObjectValueWithId extends Partial<IObjectValue> {
+    id: string;
+}
+export interface IToSVGOptions extends Size {}
+export type MouseAction = "down" | "move" | "up";
 export interface ICanvasObject extends Partial<IObjectValue> {
     type: ElementEnum;
     draw: (ctx: CanvasRenderingContext2D) => unknown;
     create: (ctx: CanvasRenderingContext2D) => unknown;
     update: (ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) => unknown;
+    move: (ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) => unknown;
     toSVG: (options: IToSVGOptions) => string;
+    getValues: () => Partial<IObjectValue>;
     onSelect?: () => unknown;
     delete?: () => unknown;
     get?: () => this;
     set?: <T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) => unknown;
-    move?: (position: Position) => unknown;
     resize?: (size: Size) => unknown;
+}
+
+export interface ICanvasObjectWithId extends ICanvasObject {
+    id: string;
 }
 
 export interface ICanvas {

@@ -79,7 +79,7 @@ const Sketch = observer(function Sketch({
 
     return (
         <>
-            <div className="group relative flex flex-col items-center gap-0 rounded-sm ">
+            <div className="group relative flex flex-col items-center gap-0 rounded-sm">
                 <div className="absolute right-0 top-0 ">
                     <Button
                         size="xs"
@@ -94,7 +94,7 @@ const Sketch = observer(function Sketch({
                 <div
                     dangerouslySetInnerHTML={{ __html: svg }}
                     onClick={onClick}
-                    className=" aspect-square h-[200px] w-[300px] cursor-pointer rounded-sm border-2 border-gray-500/30 object-cover"
+                    className=" box-content aspect-square h-[200px] w-[300px] cursor-pointer rounded-sm border-2 border-gray-500/30 object-cover"
                 />
                 <Label className="p-1 text-lg">{name}</Label>
             </div>

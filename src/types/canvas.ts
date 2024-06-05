@@ -1,4 +1,4 @@
-import { ICanvasObject } from "./custom-canvas";
+import { ICanvasObjectWithId } from "./custom-canvas";
 
 export interface Position {
     x: number;
@@ -33,7 +33,7 @@ export type SavedCanvas = {
 };
 
 export interface CanvasMetadata {
-    elements: ICanvasObject[];
+    elements: ICanvasObjectWithId[];
     size: Size;
 }
 
