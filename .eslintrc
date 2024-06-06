@@ -1,6 +1,7 @@
 {
     "env": {
-        "browser": true,
+        "node": true,
+        "es6": true,
         "es2021": true
     },
     "extends": [
@@ -20,15 +21,7 @@
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": { "project": ["./tsconfig.json"] },
-    "plugins": [
-        "@typescript-eslint",
-        "react",
-        "simple-import-sort",
-        "eslint-plugin-react-compiler",
-        "react-refresh",
-        "import",
-        "prettier"
-    ],
+    "plugins": ["@typescript-eslint", "react", "simple-import-sort", "react-refresh", "import", "prettier"],
     "settings": {
         "react": {
             // Tells eslint-plugin-react to automatically detect the version of React to use.
@@ -63,7 +56,6 @@
         "simple-import-sort/exports": "error",
         "tailwindcss/enforces-shorthand": ["error"],
         "react/prop-types": "off",
-        "react-compiler/react-compiler": "error",
         "react-refresh/only-export-components": "warn",
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "off"

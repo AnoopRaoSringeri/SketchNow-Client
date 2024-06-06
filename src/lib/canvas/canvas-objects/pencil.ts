@@ -65,10 +65,10 @@ export class Pencil implements ICanvasObjectWithId {
 
     move(ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) {
         const { x, y } = position;
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         if (action == "down") {
             CanvasHelper.applyStyles(ctx, this.style);
         }
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         ctx.beginPath();
         if (this.points.length > 0) {
             this.points.forEach((p, i) => {

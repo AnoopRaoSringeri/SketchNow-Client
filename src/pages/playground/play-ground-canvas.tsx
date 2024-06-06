@@ -37,7 +37,7 @@ export const PlaygroundCanvas = observer(function PlaygroundCanvas() {
     return (
         <>
             <CanvasOptions name={sketchName} />
-            <canvas id="playground-canvas" className="z-10" ref={playgroundCanvas.CanvasRef}></canvas>
+            <canvas id="playground-canvas" className="absolute z-10" ref={playgroundCanvas.CanvasRef}></canvas>
             <canvas id="playground-canvas-copy" className="absolute z-20" ref={playgroundCanvas.CanvasCopyRef}></canvas>
         </>
     );

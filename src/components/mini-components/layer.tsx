@@ -2,8 +2,8 @@ import { fabric } from "fabric";
 import { observer } from "mobx-react";
 import { useLayoutEffect, useRef } from "react";
 
-import { useCanvas } from "@/hooks/canvas-context";
 import { useCanvasStore } from "@/data-stores/canvas-store";
+import { useCanvas } from "@/hooks/canvas-context";
 import { Layer } from "@/types/canvas";
 
 export const LayerCompoent = observer(function LayerCompoent({ selected, id }: Layer & { selected: boolean }) {

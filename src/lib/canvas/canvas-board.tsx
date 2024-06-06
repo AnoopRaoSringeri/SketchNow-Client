@@ -277,7 +277,7 @@ export class CanvasBoard implements ICanvas {
             const contextCopy = this.CanvasCopy.getContext("2d");
             if (contextCopy) {
                 contextCopy.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                contextCopy.save();
+                contextCopy.restore();
             }
         }
         const context = this.Canvas.getContext("2d");
@@ -286,7 +286,7 @@ export class CanvasBoard implements ICanvas {
             this.Elements.forEach((ele) => {
                 ele.draw(context);
             });
-            context.save();
+            context.restore();
         }
     }
 

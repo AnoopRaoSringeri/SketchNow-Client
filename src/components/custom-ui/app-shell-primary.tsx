@@ -29,8 +29,8 @@ export const AppShellPrimary = observer(function AppShell2() {
         refreshToken();
     }, []);
     return (
-        <div className="relative flex min-h-screen w-screen flex-col overflow-hidden bg-background">
-            <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="relative flex h-screen w-screen flex-col overflow-hidden bg-background">
+            <header className="sticky top-0 z-50 h-[56px] w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="container flex h-14 max-w-screen-2xl items-center">
                     <div className="mr-4 hidden md:flex">
                         <a className="mr-6 flex items-center space-x-2">
@@ -114,7 +114,7 @@ export const AppShellPrimary = observer(function AppShell2() {
                     </nav>
                 </div>
             </header>
-            <main className="flex flex-1 bg-primary-foreground">
+            <main className="flex flex-1 overflow-hidden bg-primary-foreground">
                 <Outlet />
             </main>
             <footer />

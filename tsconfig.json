@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
+        "target": "ES2016",
         "useDefineForClassFields": true,
         "lib": ["ES2020", "DOM", "DOM.Iterable", "ES2021"],
-        "module": "ESNext",
+        "module": "ES2022",
         "skipLibCheck": true,
 
         /* Bundler mode */
@@ -25,7 +25,7 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["src", "./*.config.js", "./*.config.ts", "/*.config.ts", "react-compiler.config.ts"],
+    "include": ["src", "./*.config.js", "./*.config.ts", "/*.config.ts"],
     "references": [{ "path": "./tsconfig.node.json" }],
     "settings": {
         "import/resolver": {
