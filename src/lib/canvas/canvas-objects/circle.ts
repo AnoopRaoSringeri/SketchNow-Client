@@ -81,7 +81,8 @@ export class Circle implements ICanvasObjectWithId {
             sa: this.sa,
             ea: this.ea,
             x: this.x,
-            y: this.y
+            y: this.y,
+            style: this.style
         };
     }
 

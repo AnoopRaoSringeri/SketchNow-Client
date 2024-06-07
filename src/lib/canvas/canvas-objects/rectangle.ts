@@ -68,7 +68,8 @@ export class Rectangle implements ICanvasObjectWithId {
             h: this.h,
             w: this.w,
             x: this.x,
-            y: this.y
+            y: this.y,
+            style: this.style
         };
     }
 

@@ -9,8 +9,8 @@ import { useCanvas } from "@/hooks/use-canvas";
 
 export const CanvasStyleEditor = observer(function CanvasStyleEditor() {
     const { id } = useParams<{ id: string }>();
-    const canvas = useCanvas(id ?? "new");
-    const canvasStyle = canvas.Style;
+    const { canvasBoard } = useCanvas(id ?? "new");
+    const canvasStyle = canvasBoard.Style;
     return (
         <div className="absolute top-5 z-[100] flex flex-row items-center gap-1">
             <Popover>
@@ -21,7 +21,7 @@ export const CanvasStyleEditor = observer(function CanvasStyleEditor() {
                     <Slider
                         value={[canvasStyle.strokeWidth]}
                         onValueChange={(values) => {
-                            canvas.setStyle("strokeWidth", values[0]);
+                            canvasBoard.setStyle("strokeWidth", values[0]);
                         }}
                     />
                 </PopoverContent>
@@ -34,7 +34,7 @@ export const CanvasStyleEditor = observer(function CanvasStyleEditor() {
                     <ColorPickerControl
                         value={canvasStyle.strokeStyle}
                         onChange={(c) => {
-                            canvas.setStyle("strokeStyle", c);
+                            canvasBoard.setStyle("strokeStyle", c);
                         }}
                     />
                 </PopoverContent>

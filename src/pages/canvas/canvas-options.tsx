@@ -29,19 +29,18 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
     const navigate = useNavigate();
     const [sketchName, setSketchName] = useState(name);
     const { sketchStore } = useStore();
-    const playgroundCanvas = useCanvas(id ?? "new");
+    const { canvasBoard } = useCanvas(id ?? "new");
 
     useEffect(() => {
         setSketchName(name);
     }, [name]);
 
     const saveBoard = async () => {
-        console.log(playgroundCanvas.toJSON());
-        if (id) {
-            await sketchStore.UpdateSketch(id, playgroundCanvas.toJSON(), sketchName);
+        if (id && id != "new") {
+            await sketchStore.UpdateSketch(id, canvasBoard.toJSON(), sketchName);
             toast.success("Sketch saved successfully");
         } else {
-            const response = await sketchStore.SaveSketch(playgroundCanvas.toJSON(), sketchName);
+            const response = await sketchStore.SaveSketch(canvasBoard.toJSON(), sketchName);
             if (response) {
                 toast.success("Sketch updated successfully");
                 navigate(`/sketch/${response._id}`);
@@ -55,7 +54,7 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
                 <ElementSelector
                     options={LeftOptionLists}
                     onChange={(eleType) => {
-                        playgroundCanvas.ElementType = eleType;
+                        canvasBoard.ElementType = eleType;
                     }}
                 />
                 <div className="absolute right-5 top-5 z-[100]">

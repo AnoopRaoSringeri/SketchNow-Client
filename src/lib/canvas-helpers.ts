@@ -18,13 +18,23 @@ export class CanvasHelper {
 
     static isUnderMouse(mousePosition: Position, values: Partial<IObjectValue>) {
         const { x, y } = mousePosition;
-        const { x: cx = 0, y: cy = 0, h = 0, w = 0, r = 0, points = [] } = values;
+        const { x: cx = 0, y: cy = 0, h = 0, w = 0, r = 0, points = [], style = DefaultStyle } = values;
+        const { strokeWidth } = style;
+        const wFactor = strokeWidth / 2;
+        const ucx = cx - wFactor;
+        const ucy = cy - wFactor;
+        const uh = h + wFactor * 2;
+        const uw = w + wFactor * 2;
+        const ur = r + wFactor;
         return (
-            (x >= cx && x <= cx + w && y >= cy && y <= cy + h) ||
-            (x >= cx - r && y >= cy - r && x <= cx + r && y <= cy + r) ||
+            (x >= ucx && x <= ucx + uw && y >= ucy && y <= ucy + uh) ||
+            (x >= cx - ur && y >= cy - ur && x <= cx + ur && y <= cy + ur) ||
             points.find(
                 ([px, py]) =>
-                    px - HOVER_OFFSET <= x && x <= px + HOVER_OFFSET && py - HOVER_OFFSET <= y && y <= py + HOVER_OFFSET
+                    px - (HOVER_OFFSET + wFactor) <= x &&
+                    x <= px + HOVER_OFFSET + wFactor &&
+                    py - (HOVER_OFFSET + wFactor) <= y &&
+                    y <= py + HOVER_OFFSET + wFactor
             ) != null
         );
     }

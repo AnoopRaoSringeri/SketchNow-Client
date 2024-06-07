@@ -14,14 +14,14 @@ const ElementSelector = observer(function ElementSelector({
     onChange: (value: ElementEnum) => unknown;
 }) {
     const { id } = useParams<{ id: string }>();
-    const playgroundCanvas = useCanvas(id ?? "new");
+    const { canvasBoard } = useCanvas(id ?? "new");
 
     return (
         <div className="absolute left-5 z-[100]  flex flex-col items-center gap-1">
             {options.map((o) => (
                 <Button
                     size="sm"
-                    variant={playgroundCanvas.ElementType == o.value ? "default" : "secondary"}
+                    variant={canvasBoard.ElementType == o.value ? "default" : "secondary"}
                     key={o.value}
                     onClick={() => {
                         onChange(o.value);

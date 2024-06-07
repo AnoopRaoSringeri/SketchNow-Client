@@ -225,31 +225,24 @@ export class CanvasBoard implements ICanvas {
     }
 
     loadBoard(metadata: CanvasMetadata, { height, readonly, width, draw }: Partial<AdditionalCanvasOptions>) {
+        this.ReadOnly = readonly ?? false;
+        this.Height = height ?? metadata.size.height;
+        this.Width = width ?? metadata.size.width;
         const context = this.Canvas.getContext("2d");
         if (context) {
             const objArray = metadata.elements.map((ele) => {
                 return CavasObjectMap[ele.type](ele);
             });
             this._elements = objArray;
-            this.Height = height ?? metadata.size.height;
-            this.Width = width ?? metadata.size.width;
-            this.ReadOnly = readonly ?? false;
             if (draw) {
                 this.redrawBoard();
             }
         }
     }
 
-    drawBoard(elements: ICanvasObjectWithId[]) {
-        const context = this.Canvas.getContext("2d");
-        if (context) {
-            const objArray = elements.map((ele) => {
-                const newObj = CavasObjectMap[ele.type](ele);
-                newObj.draw(context);
-                return newObj;
-            });
-            this._elements = objArray;
-        }
+    createBoard({ height = window.innerHeight, width = window.innerWidth }: Partial<AdditionalCanvasOptions>) {
+        this.Height = height;
+        this.Width = width;
     }
 
     resizeBoard() {
@@ -288,6 +281,13 @@ export class CanvasBoard implements ICanvas {
             });
             context.restore();
         }
+    }
+
+    dispose() {
+        this._activeObjects = [];
+        this.ElementType = ElementEnum.Move;
+        this.ReadOnly = false;
+        this._hoveredObject = null;
     }
 
     toJSON(): CanvasMetadata {

@@ -1,6 +1,6 @@
 import { TrashIcon } from "lucide-react";
 import { observer } from "mobx-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { useStore } from "@/api-stores/store-provider";
@@ -15,7 +15,7 @@ import { NoSketch } from "../no-sketch-page";
 
 const SketchList = observer(function SketchList() {
     const { sketchStore } = useStore();
-    const [data, setData] = useState<SavedCanvas[]>([]);
+    const [sketches, setSketches] = useState<SavedCanvas[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -25,20 +25,31 @@ const SketchList = observer(function SketchList() {
     const loadData = async () => {
         setLoading(true);
         const sketches = await sketchStore.GetAllSketches();
-        setData(sketches);
+        setSketches(sketches);
         setLoading(false);
+    };
+
+    const deleteSketch = async (canvasId: string) => {
+        setSketches(sketches.filter((s) => s._id != canvasId));
+        await sketchStore.DeleteSketch(canvasId);
     };
 
     return (
         <div className="flex size-full items-center justify-center">
             <Loader loading={loading} />
-            {data.length == 0 && !loading ? (
+            {sketches.length == 0 && !loading ? (
                 <NoSketch />
             ) : (
-                <ScrollArea className="size-full   p-5" type="auto">
+                <ScrollArea className="size-full p-5" type="auto">
                     <div className="flex flex-1 flex-wrap gap-5 overflow-hidden">
-                        {data.map((d) => (
-                            <Sketch key={d._id} canvasId={d._id} data={d.metadata} name={d.name} />
+                        {sketches.map((d) => (
+                            <Sketch
+                                key={d._id}
+                                canvasId={d._id}
+                                data={d.metadata}
+                                name={d.name}
+                                onDelete={deleteSketch}
+                            />
                         ))}
                     </div>
                 </ScrollArea>
@@ -52,29 +63,28 @@ export default SketchList;
 const Sketch = observer(function Sketch({
     canvasId,
     data,
-    name
+    name,
+    onDelete
 }: {
     canvasId: string;
     data: CanvasMetadata;
     name: string;
+    onDelete: (id: string) => unknown;
 }) {
-    const { sketchStore } = useStore();
     const [svg, setSvg] = useState("");
-    const canvas = useCanvas(canvasId);
-    const canvasRef = canvas.CanvasRef;
+    const { canvasBoard } = useCanvas(canvasId);
+    const canvasRef = canvasBoard.CanvasRef;
     const imageRef = useRef<SVGImageElement>(null);
     const navigate = useNavigate();
-    useLayoutEffect(() => {
-        canvas.loadBoard(data, { readonly: true });
-        setSvg(canvas.toSVG({ height: 200, width: 300 }));
+
+    useEffect(() => {
+        canvasBoard.loadBoard(data, { readonly: true });
+        setSvg(canvasBoard.toSVG({ height: 200, width: 300 }));
+        return () => canvasBoard.dispose();
     }, [canvasRef, imageRef]);
 
     const onClick = () => {
         navigate(`/sketch/${canvasId}`);
-    };
-
-    const deleteSketch = async () => {
-        await sketchStore.DeleteSketch(canvasId);
     };
 
     return (
@@ -84,7 +94,7 @@ const Sketch = observer(function Sketch({
                     <Button
                         size="xs"
                         variant="destructive"
-                        onClick={deleteSketch}
+                        onClick={() => onDelete(canvasId)}
                         className="opacity-0  transition duration-300 group-hover:opacity-100"
                     >
                         <TrashIcon size={20} color="white" />

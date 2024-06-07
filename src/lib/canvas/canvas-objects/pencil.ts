@@ -114,7 +114,8 @@ export class Pencil implements ICanvasObjectWithId {
 
     getValues() {
         return {
-            points: this.points
+            points: this.points,
+            style: this.style
         };
     }
 

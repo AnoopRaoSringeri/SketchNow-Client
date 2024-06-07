@@ -7,9 +7,8 @@ import { useLayout } from "@/hooks/layout-provider";
 import { Auth } from "@/pages/auth/auth-page";
 import { LogInPage } from "@/pages/auth/login-page";
 import { RegisterPage } from "@/pages/auth/register-page";
+import { CanvasBoard } from "@/pages/canvas/canvas-board";
 import SketchList from "@/pages/canvas/sketches";
-
-import { PlaygroundCanvas } from "./playground/play-ground-canvas";
 
 function AppContainer() {
     const { element } = useLayout();
@@ -34,7 +33,6 @@ function AppContainer() {
                         }
                     />
                 </Route>
-                <Route path="/playground" element={element} />
                 <Route path="sketch" element={element}>
                     <Route
                         path=""
@@ -48,15 +46,7 @@ function AppContainer() {
                         path="/sketch/:id"
                         element={
                             <Suspense fallback={<Loader />}>
-                                <PlaygroundCanvas />
-                            </Suspense>
-                        }
-                    />
-                    <Route
-                        path="/sketch/playground"
-                        element={
-                            <Suspense fallback={<Loader />}>
-                                <PlaygroundCanvas />
+                                <CanvasBoard />
                             </Suspense>
                         }
                     />

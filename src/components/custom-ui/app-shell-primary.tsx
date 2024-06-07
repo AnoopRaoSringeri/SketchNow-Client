@@ -68,7 +68,7 @@ export const AppShellPrimary = observer(function AppShell2() {
                             >
                                 Canvas
                             </NavLink>
-                            <NavLink
+                            {/* <NavLink
                                 className={({ isActive }) => {
                                     return cn(
                                         "transition-colors hover:text-foreground/80",
@@ -79,7 +79,7 @@ export const AppShellPrimary = observer(function AppShell2() {
                                 to="/sketch/playground"
                             >
                                 Playground
-                            </NavLink>
+                            </NavLink> */}
                         </nav>
                     </div>
                     <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

@@ -3,15 +3,15 @@ import { useEffect } from "react";
 import { CanvasBoard } from "@/lib/canvas/canvas-board";
 
 const CanvasMap: Map<string, CanvasBoard> = new Map();
-let playgroundCanvas: CanvasBoard | null = null;
+let canvasBoard: CanvasBoard | null = null;
 
 export function useCanvas(canvasId: string) {
     const savedCanvas = CanvasMap.get(canvasId);
     if (!savedCanvas) {
-        playgroundCanvas = new CanvasBoard();
-        CanvasMap.set(canvasId, playgroundCanvas);
+        canvasBoard = new CanvasBoard();
+        CanvasMap.set(canvasId, canvasBoard);
     } else {
-        playgroundCanvas = savedCanvas;
+        canvasBoard = savedCanvas;
     }
 
     useEffect(() => {
@@ -43,20 +43,24 @@ export function useCanvas(canvasId: string) {
     }, [onMouseUp]);
 
     function onResize() {
-        playgroundCanvas?.resizeBoard();
+        canvasBoard?.resizeBoard();
     }
 
     function onMouseDown(e: MouseEvent) {
-        playgroundCanvas?.onMouseDown(e);
+        canvasBoard?.onMouseDown(e);
     }
 
     function onMouseMove(e: MouseEvent) {
-        playgroundCanvas?.onMouseMove(e);
+        canvasBoard?.onMouseMove(e);
     }
 
     function onMouseUp(e: MouseEvent) {
-        playgroundCanvas?.onMouseUp(e);
+        canvasBoard?.onMouseUp(e);
     }
 
-    return playgroundCanvas;
+    function removeCanvasCache(id: string) {
+        CanvasMap.delete(id);
+    }
+
+    return { canvasBoard, removeCanvasCache };
 }
