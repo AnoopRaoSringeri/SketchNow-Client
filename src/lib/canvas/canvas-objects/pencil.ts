@@ -6,6 +6,7 @@ import {
     ElementEnum,
     ICanvasObject,
     ICanvasObjectWithId,
+    IObjectStyle,
     IObjectValue,
     IObjectValueWithId,
     IToSVGOptions,
@@ -22,6 +23,11 @@ export class Pencil implements ICanvasObjectWithId {
         this.style = v.style ?? DefaultStyle;
     }
     points: [number, number][] = [];
+    private _isSelected = false;
+
+    get IsSelected() {
+        return this._isSelected;
+    }
 
     draw(ctx: CanvasRenderingContext2D) {
         CanvasHelper.applyStyles(ctx, this.style);
@@ -93,6 +99,11 @@ export class Pencil implements ICanvasObjectWithId {
                 return [offsetX, offsetY];
             });
         }
+    }
+
+    updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
+        this.style[key] = value;
+        this.draw(ctx);
     }
 
     toSVG({ height, width }: IToSVGOptions) {

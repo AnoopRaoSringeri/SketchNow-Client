@@ -149,6 +149,7 @@ export class CanvasBoard implements ICanvas {
             const context = this.CanvasCopy.getContext("2d");
             if (context) {
                 this._selectedElements[0].updateStyle(context, key, value);
+                this.SelectedElements = [...this._selectedElements];
             }
         }
     }

@@ -27,6 +27,11 @@ export class Line implements ICanvasObjectWithId {
     points: [number, number][] = [];
     x = 0;
     y = 0;
+    private _isSelected = false;
+
+    get IsSelected() {
+        return this._isSelected;
+    }
 
     draw(ctx: CanvasRenderingContext2D) {
         CanvasHelper.applyStyles(ctx, this.style);

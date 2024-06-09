@@ -1,3 +1,4 @@
+import { action, makeObservable, observable } from "mobx";
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
@@ -24,6 +25,10 @@ export class Rectangle implements ICanvasObjectWithId {
         this.w = w ?? 0;
         this.id = id;
         this.style = style ?? DefaultStyle;
+        makeObservable(this, {
+            style: observable,
+            updateStyle: action
+        });
     }
     x = 0;
     y = 0;

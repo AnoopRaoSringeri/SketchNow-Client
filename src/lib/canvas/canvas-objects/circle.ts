@@ -30,6 +30,11 @@ export class Circle implements ICanvasObjectWithId {
     r = 0;
     sa = 0;
     ea = 2 * Math.PI;
+    private _isSelected = false;
+
+    get IsSelected() {
+        return this._isSelected;
+    }
 
     draw(ctx: CanvasRenderingContext2D) {
         this.create(ctx);

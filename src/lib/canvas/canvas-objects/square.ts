@@ -27,6 +27,11 @@ export class Square implements ICanvasObjectWithId {
     x = 0;
     y = 0;
     h = 0;
+    private _isSelected = false;
+
+    get IsSelected() {
+        return this._isSelected;
+    }
 
     draw(ctx: CanvasRenderingContext2D) {
         this.create(ctx);
