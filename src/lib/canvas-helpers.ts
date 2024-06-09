@@ -2,7 +2,8 @@ import { Position, Size } from "@/types/canvas";
 import { ICanvasObjectWithId, IObjectStyle, IObjectValue, IToSVGOptions } from "@/types/custom-canvas";
 
 export const DefaultStyle: IObjectStyle = { fillColor: "transparent", strokeStyle: "#fff", strokeWidth: 1 };
-const HOVER_OFFSET = 5;
+const HOVER_OFFSET = 10;
+const LINE_JOINING_POINTS = 10;
 export class CanvasHelper {
     static getHeightRatio(canvasHeight: number, newHeight: number) {
         return newHeight / canvasHeight;
@@ -26,8 +27,10 @@ export class CanvasHelper {
         const uh = h + wFactor * 2;
         const uw = w + wFactor * 2;
         const ur = r + wFactor;
+        const [lpx, lpy] = points.length > 0 ? points[0] : [0, 0];
         return (
             (x >= ucx && x <= ucx + uw && y >= ucy && y <= ucy + uh) ||
+            (x >= ucx && x <= ucx + uh && y >= ucy && y <= ucy + uh) ||
             (x >= cx - ur && y >= cy - ur && x <= cx + ur && y <= cy + ur) ||
             points.find(
                 ([px, py]) =>
@@ -35,7 +38,9 @@ export class CanvasHelper {
                     x <= px + HOVER_OFFSET + wFactor &&
                     py - (HOVER_OFFSET + wFactor) <= y &&
                     y <= py + HOVER_OFFSET + wFactor
-            ) != null
+            ) != null ||
+            // (x == ucx && y == ucy) ||
+            (x == lpx + wFactor && y == lpy + wFactor)
         );
     }
 

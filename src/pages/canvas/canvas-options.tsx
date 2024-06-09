@@ -13,6 +13,7 @@ import { Option } from "@/types/layout";
 
 import { CanvasStyleEditor } from "./canvas-style-editor";
 import ElementSelector from "./element-selector";
+import { ElemntStyleEditor } from "./element-style-editor";
 
 const LeftOptionLists: Option[] = [
     { icon: Move, value: ElementEnum.Move },
@@ -73,6 +74,7 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
                     </div>
                 </div>
                 <CanvasStyleEditor />
+                <ElemntStyleEditor />
             </div>
         </div>
     );

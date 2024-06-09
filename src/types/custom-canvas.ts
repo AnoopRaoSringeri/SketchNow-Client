@@ -25,9 +25,15 @@ export interface IToSVGOptions extends Size {}
 export type MouseAction = "down" | "move" | "up";
 export interface ICanvasObject extends Partial<IObjectValue> {
     type: ElementEnum;
+    IsSelected: boolean;
     draw: (ctx: CanvasRenderingContext2D) => unknown;
     create: (ctx: CanvasRenderingContext2D) => unknown;
     update: (ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) => unknown;
+    updateStyle: <T extends keyof IObjectStyle>(
+        ctx: CanvasRenderingContext2D,
+        key: T,
+        value: IObjectStyle[T]
+    ) => unknown;
     move: (ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) => unknown;
     toSVG: (options: IToSVGOptions) => string;
     getValues: () => Partial<IObjectValue>;

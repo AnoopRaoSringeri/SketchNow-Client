@@ -12,56 +12,59 @@ import {
     IToSVGOptions,
     MouseAction
 } from "@/types/custom-canvas";
-export class Circle implements ICanvasObjectWithId {
-    type: ElementEnum = ElementEnum.Circle;
+
+export class Line implements ICanvasObjectWithId {
+    type: ElementEnum = ElementEnum.Line;
     id = uuid();
     style = DefaultStyle;
     constructor(v: IObjectValueWithId) {
         this.x = v.x ?? 0;
         this.y = v.y ?? 0;
-        this.r = v.r ?? 0;
-        this.sa = v.sa ?? 0;
-        this.ea = v.ea ?? 2 * Math.PI;
+        this.points = v.points ?? [];
         this.id = v.id;
         this.style = v.style ?? DefaultStyle;
     }
+    points: [number, number][] = [];
     x = 0;
     y = 0;
-    r = 0;
-    sa = 0;
-    ea = 2 * Math.PI;
 
     draw(ctx: CanvasRenderingContext2D) {
-        this.create(ctx);
+        CanvasHelper.applyStyles(ctx, this.style);
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        if (this.points.length > 0) {
+            const [x, y] = this.points[0];
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
     }
 
     create(ctx: CanvasRenderingContext2D) {
         CanvasHelper.applyStyles(ctx, this.style);
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, this.sa, this.ea);
-        ctx.stroke();
-        ctx.fill();
-        ctx.closePath();
+        ctx.moveTo(this.x, this.y);
     }
 
     update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        const { r = 0 } = objectValue;
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        const { points = [] } = objectValue;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, r, this.sa, this.ea);
-        ctx.stroke();
-        ctx.fill();
-        this.r = r;
+        ctx.moveTo(this.x, this.y);
+        if (points.length > 0) {
+            const [x, y] = points[0];
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            this.points = points;
+        }
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
         this.style[key] = value;
         CanvasHelper.applyStyles(ctx, this.style);
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, this.sa, this.ea);
-        ctx.stroke();
-        ctx.fill();
+        this.draw(ctx);
     }
 
     move(ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) {
@@ -70,29 +73,43 @@ export class Circle implements ICanvasObjectWithId {
             CanvasHelper.applyStyles(ctx, this.style);
         }
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        const offsetX = x + this.x;
-        const offsetY = y + this.y;
         ctx.beginPath();
-        ctx.arc(offsetX, offsetY, this.r, this.sa, this.ea);
-        ctx.stroke();
-        ctx.fill();
+        if (this.points.length > 0) {
+            const [px, py] = this.points[0];
+            const offsetX = x + this.x;
+            const offsetY = y + this.y;
+            const offsetPX = x + px;
+            const offsetPY = y + py;
+            ctx.moveTo(offsetX, offsetY);
+            ctx.lineTo(offsetPX, offsetPY);
+            ctx.stroke();
+        }
         if (action == "up") {
             ctx.closePath();
             ctx.restore();
-            this.x = offsetX;
-            this.y = offsetY;
+            this.x = x + this.x;
+            this.y = y + this.y;
+            this.points = this.points.map((p) => {
+                const [px, py] = p;
+                const offsetX = x + px;
+                const offsetY = y + py;
+                return [offsetX, offsetY];
+            });
         }
     }
 
-    toSVG(options: IToSVGOptions) {
-        return `<circle r="${this.r * Math.max(options.width, options.height)}" cx="${this.x * options.width}" cy="${this.y * options.height}" style="${CanvasHelper.getHTMLStyle(this.style, options)}" />`;
+    toSVG({ height, width }: IToSVGOptions) {
+        let s = "";
+        if (this.points.length > 0) {
+            const [ix, iy] = this.points[0];
+            s = `M ${this.x * width} ${this.y * height} L ${ix * width} ${iy * height}`;
+        }
+        return `<path d="${s}" style="${CanvasHelper.getHTMLStyle(this.style, { height, width })}" />`;
     }
 
     getValues() {
         return {
-            r: this.r,
-            sa: this.sa,
-            ea: this.ea,
+            points: this.points,
             x: this.x,
             y: this.y,
             style: this.style

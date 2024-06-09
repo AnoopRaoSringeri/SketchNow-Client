@@ -18,6 +18,8 @@ export class CanvasBoard implements ICanvas {
 
     private _activeObjects: ICanvasObjectWithId[] = [];
     private _hoveredObject: ICanvasObjectWithId | null = null;
+    _selectedElements: ICanvasObjectWithId[] = [];
+    private _elmentsDragging = false;
 
     _elementType: ElementEnum = ElementEnum.Move;
 
@@ -31,7 +33,9 @@ export class CanvasBoard implements ICanvas {
             ElementType: computed,
             _style: observable,
             Style: computed,
-            setStyle: action
+            setStyle: action,
+            _selectedElements: observable,
+            SelectedElements: computed
         });
     }
 
@@ -114,6 +118,14 @@ export class CanvasBoard implements ICanvas {
         return toJS(this._style);
     }
 
+    get SelectedElements() {
+        return this._selectedElements;
+    }
+
+    set SelectedElements(elements: ICanvasObjectWithId[]) {
+        this._selectedElements = elements;
+    }
+
     init({ width, height }: Size) {
         if (!this.CanvasCopy) {
             return;
@@ -132,13 +144,32 @@ export class CanvasBoard implements ICanvas {
         }
     }
 
+    updateStyle<T extends keyof IObjectStyle>(key: T, value: IObjectStyle[T]) {
+        if (this.CanvasCopy) {
+            const context = this.CanvasCopy.getContext("2d");
+            if (context) {
+                this._selectedElements[0].updateStyle(context, key, value);
+            }
+        }
+    }
+
     onMouseDown(e: MouseEvent) {
         if (!this.CanvasCopy) {
             return;
         }
         const context = this.CanvasCopy.getContext("2d");
-        if (e.target != this.CanvasCopy || !context) {
+        if (!context) {
             return;
+        }
+        if (e.target != this.CanvasCopy) {
+            return;
+        }
+        if (
+            e.target == this.CanvasCopy &&
+            this._selectedElements.length != 0 &&
+            this._hoveredObject?.id != this._selectedElements[0]?.id
+        ) {
+            this.unSelectElements();
         }
         const { offsetX, offsetY } = e;
         this._pointerOrigin = { x: offsetX, y: offsetY };
@@ -147,6 +178,7 @@ export class CanvasBoard implements ICanvas {
                 this._elements = this.Elements.filter((e) => e.id != this._hoveredObject!.id);
                 this.redrawBoard();
                 this._activeObjects = [this._hoveredObject];
+                this.SelectedElements = [this._hoveredObject];
                 this._activeObjects[0].move(context, { x: 0, y: 0 }, "down");
             }
         } else {
@@ -169,7 +201,10 @@ export class CanvasBoard implements ICanvas {
             return;
         }
         const context = this.CanvasCopy.getContext("2d");
-        if (e.target != this.CanvasCopy || !context) {
+        if (!context) {
+            return;
+        }
+        if (e.target != this.CanvasCopy && this._elmentsDragging) {
             this.saveBoard();
             return;
         }
@@ -177,6 +212,7 @@ export class CanvasBoard implements ICanvas {
         if (this._activeObjects.length != 0 && this._pointerOrigin) {
             const { x, y } = this._pointerOrigin;
             if (this.ElementType == ElementEnum.Move) {
+                this._elmentsDragging = true;
                 this._activeObjects[0].move(context, { x: offsetX - x, y: offsetY - y }, "move");
             } else {
                 const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
@@ -196,9 +232,6 @@ export class CanvasBoard implements ICanvas {
                 this.CanvasCopy.style.cursor = "default";
                 this._hoveredObject = null;
             }
-        } else {
-            this.CanvasCopy.style.cursor = "default";
-            this._hoveredObject = null;
         }
     }
 
@@ -207,21 +240,43 @@ export class CanvasBoard implements ICanvas {
             return;
         }
         const context = this.CanvasCopy.getContext("2d");
-        if (e.target != this.CanvasCopy || !context) {
+        if (!context) {
             return;
         }
-        const { offsetX, offsetY } = e;
-        if (this._activeObjects.length != 0 && this._pointerOrigin) {
-            const { x, y } = this._pointerOrigin;
-            if (this.ElementType == ElementEnum.Move) {
-                this._activeObjects[0].move(context, { x: offsetX - x, y: offsetY - y }, "up");
-            } else {
-                const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
-                this._activeObjects[0].update(context, { w: offsetX - x, h: offsetY - y, r });
+        if (this._activeObjects.length != 0) {
+            if (e.target != this.CanvasCopy) {
+                this.saveBoard();
+                return;
             }
+            const { offsetX, offsetY } = e;
+            if (this._activeObjects.length != 0 && this._pointerOrigin) {
+                const { x, y } = this._pointerOrigin;
+                if (this.ElementType == ElementEnum.Move) {
+                    this._activeObjects[0].move(context, { x: offsetX - x, y: offsetY - y }, "up");
+                } else {
+                    const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
+                    this._activeObjects[0].update(context, { w: offsetX - x, h: offsetY - y, r });
+                }
+            }
+            context.closePath();
+            this.saveBoard();
+        } else {
+            this._pointerOrigin = null;
+            return;
         }
-        context.closePath();
-        this.saveBoard();
+    }
+
+    selectElements() {
+        //
+    }
+
+    unSelectElements() {
+        if (this._selectedElements[0]) {
+            this._elements.push(this._selectedElements[0]);
+            this.SelectedElements = [];
+            this._elmentsDragging = false;
+            this.redrawBoard();
+        }
     }
 
     loadBoard(metadata: CanvasMetadata, { height, readonly, width, draw }: Partial<AdditionalCanvasOptions>) {
@@ -261,6 +316,7 @@ export class CanvasBoard implements ICanvas {
             this._pointerOrigin = null;
             this._activeObjects = [];
             this._hoveredObject = null;
+            this._elmentsDragging = false;
             this.redrawBoard();
         }
     }
@@ -284,10 +340,12 @@ export class CanvasBoard implements ICanvas {
     }
 
     dispose() {
+        this.SelectedElements = [];
         this._activeObjects = [];
         this.ElementType = ElementEnum.Move;
         this.ReadOnly = false;
         this._hoveredObject = null;
+        this._elmentsDragging = false;
     }
 
     toJSON(): CanvasMetadata {

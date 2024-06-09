@@ -114,7 +114,7 @@ export const AppShellPrimary = observer(function AppShell2() {
                     </nav>
                 </div>
             </header>
-            <main className="flex flex-1 overflow-hidden bg-primary-foreground">
+            <main className="relative flex flex-1 overflow-hidden bg-primary-foreground">
                 <Outlet />
             </main>
             <footer />

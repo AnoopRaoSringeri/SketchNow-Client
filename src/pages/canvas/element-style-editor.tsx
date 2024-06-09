@@ -7,37 +7,44 @@ import { Popover, PopoverContent, PopoverTriggerButton } from "@/components/ui/p
 import { Slider } from "@/components/ui/slider";
 import { useCanvas } from "@/hooks/use-canvas";
 
-export const CanvasStyleEditor = observer(function CanvasStyleEditor() {
+export const ElemntStyleEditor = observer(function ElemntStyleEditor() {
     const { id } = useParams<{ id: string }>();
     const { canvasBoard } = useCanvas(id ?? "new");
-    const canvasStyle = canvasBoard.Style;
+    const selectedElements = canvasBoard.SelectedElements;
+    const element = selectedElements[0];
+    const elementStyle = element?.style;
+
+    if (!elementStyle) {
+        return <></>;
+    }
+
     return (
-        <div className="absolute top-5 z-[100] flex flex-row items-center gap-1">
+        <div className="absolute right-5 top-20 z-[100] flex flex-col items-center gap-1">
             <Popover>
                 <PopoverTriggerButton variant="secondary" size="sm">
                     <PencilLine />
                 </PopoverTriggerButton>
-                <PopoverContent>
+                <PopoverContent align="end" alignOffset={120} sideOffset={-38}>
                     <Slider
-                        value={[canvasStyle.strokeWidth]}
+                        value={[elementStyle.strokeWidth]}
                         onValueChange={(values) => {
-                            canvasBoard.setStyle("strokeWidth", values[0]);
+                            canvasBoard.updateStyle("strokeWidth", values[0]);
                         }}
                     />
                 </PopoverContent>
             </Popover>
             <Popover>
                 <PopoverTriggerButton variant="secondary" size="sm">
-                    <Palette color={canvasStyle.strokeStyle} />
+                    <Palette color={elementStyle.strokeStyle} />
                 </PopoverTriggerButton>
                 <PopoverContent>
                     <ColorPickerControl
-                        value={canvasStyle.strokeStyle}
+                        value={elementStyle.strokeStyle}
                         onChange={(c) => {
                             if (c.endsWith("00")) {
-                                canvasBoard.setStyle("strokeStyle", c.slice(0, -2));
+                                canvasBoard.updateStyle("strokeStyle", c.slice(0, -2));
                             } else {
-                                canvasBoard.setStyle("strokeStyle", c);
+                                canvasBoard.updateStyle("strokeStyle", c);
                             }
                         }}
                     />
@@ -45,16 +52,16 @@ export const CanvasStyleEditor = observer(function CanvasStyleEditor() {
             </Popover>
             <Popover>
                 <PopoverTriggerButton variant="secondary" size="sm">
-                    <PaintBucket color={canvasStyle.fillColor} />
+                    <PaintBucket color={elementStyle.fillColor} />
                 </PopoverTriggerButton>
                 <PopoverContent>
                     <ColorPickerControl
-                        value={canvasStyle.fillColor}
+                        value={elementStyle.fillColor}
                         onChange={(c) => {
                             if (c.endsWith("00")) {
-                                canvasBoard.setStyle("fillColor", c.slice(0, -2));
+                                canvasBoard.updateStyle("fillColor", c.slice(0, -2));
                             } else {
-                                canvasBoard.setStyle("fillColor", c);
+                                canvasBoard.updateStyle("fillColor", c);
                             }
                         }}
                     />
