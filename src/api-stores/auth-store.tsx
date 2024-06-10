@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { makeAutoObservable, runInAction } from "mobx";
 
-export const BaseUrl = "https://localhost:8000/";
+export const BaseUrl = "http://localhost:8000/";
 export const getRequestConfig = (withCredentials?: boolean) => {
     return {
         headers: {
