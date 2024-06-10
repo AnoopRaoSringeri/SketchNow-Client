@@ -3,7 +3,7 @@ import { ICanvasObjectWithId, IObjectStyle, IObjectValue, IToSVGOptions } from "
 
 export const DefaultStyle: IObjectStyle = { fillColor: "transparent", strokeStyle: "#fff", strokeWidth: 1 };
 const HOVER_OFFSET = 10;
-const LINE_JOINING_POINTS = 10;
+// const LINE_JOINING_POINTS = 10;
 export class CanvasHelper {
     static getHeightRatio(canvasHeight: number, newHeight: number) {
         return newHeight / canvasHeight;
