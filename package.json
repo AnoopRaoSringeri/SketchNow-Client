@@ -26,6 +26,7 @@
         "axios": "^1.6.8",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.0",
+        "dotenv": "^16.4.5",
         "lucide-react": "^0.379.0",
         "mobx": "^6.10.0",
         "mobx-react": "^9.0.0",
