@@ -29,11 +29,25 @@ export function useCanvas(canvasId: string) {
     }, [onMouseDown]);
 
     useEffect(() => {
+        window.addEventListener("touchstart", onTouchStart);
+        return () => {
+            window.removeEventListener("touchstart", onTouchStart);
+        };
+    }, [onTouchStart]);
+
+    useEffect(() => {
         window.addEventListener("mousemove", onMouseMove);
         return () => {
             window.removeEventListener("mousemove", onMouseMove);
         };
-    }, [onMouseDown]);
+    }, [onMouseMove]);
+
+    useEffect(() => {
+        window.addEventListener("touchmove", onTouchMove);
+        return () => {
+            window.removeEventListener("touchmove", onTouchMove);
+        };
+    }, [onTouchMove]);
 
     useEffect(() => {
         window.addEventListener("mouseup", onMouseUp);
@@ -41,6 +55,13 @@ export function useCanvas(canvasId: string) {
             window.removeEventListener("mouseup", onMouseUp);
         };
     }, [onMouseUp]);
+
+    useEffect(() => {
+        window.addEventListener("touchend", onTouchEnd);
+        return () => {
+            window.removeEventListener("touchend", onTouchEnd);
+        };
+    }, [onTouchEnd]);
 
     function onResize() {
         canvasBoard?.resizeBoard();
@@ -50,12 +71,24 @@ export function useCanvas(canvasId: string) {
         canvasBoard?.onMouseDown(e);
     }
 
+    function onTouchStart(e: globalThis.TouchEvent) {
+        canvasBoard?.onTouchStart(e);
+    }
+
     function onMouseMove(e: MouseEvent) {
         canvasBoard?.onMouseMove(e);
     }
 
+    function onTouchMove(e: globalThis.TouchEvent) {
+        canvasBoard?.onTouchMove(e);
+    }
+
     function onMouseUp(e: MouseEvent) {
         canvasBoard?.onMouseUp(e);
+    }
+
+    function onTouchEnd(e: globalThis.TouchEvent) {
+        canvasBoard?.onTouchEnd(e);
     }
 
     function removeCanvasCache(id: string) {

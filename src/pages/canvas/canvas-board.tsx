@@ -7,6 +7,7 @@ import { Loader } from "@/components/ui/loader";
 import { useCanvas } from "@/hooks/use-canvas";
 
 import CanvasOptions from "./canvas-options";
+import { ElementOptions } from "./element-options";
 
 export const CanvasBoard = observer(function CanvasBoard() {
     const { id } = useParams<{ id: string }>();
@@ -42,6 +43,7 @@ export const CanvasBoard = observer(function CanvasBoard() {
         <>
             <Loader loading={isLoading} />
             <CanvasOptions name={sketchName} />
+            <ElementOptions />
             <canvas id="canvas-board" className="absolute z-10" ref={canvasBoard.CanvasRef}></canvas>
             <canvas id="canvas-board-copy" className="absolute z-20" ref={canvasBoard.CanvasCopyRef}></canvas>
         </>
