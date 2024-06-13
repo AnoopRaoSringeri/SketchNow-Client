@@ -29,7 +29,7 @@ export function useCanvas(canvasId: string) {
     }, [onMouseDown]);
 
     useEffect(() => {
-        window.addEventListener("touchstart", onTouchStart);
+        window.addEventListener("touchstart", onTouchStart, { passive: false });
         return () => {
             window.removeEventListener("touchstart", onTouchStart);
         };
@@ -43,7 +43,7 @@ export function useCanvas(canvasId: string) {
     }, [onMouseMove]);
 
     useEffect(() => {
-        window.addEventListener("touchmove", onTouchMove);
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
         return () => {
             window.removeEventListener("touchmove", onTouchMove);
         };
