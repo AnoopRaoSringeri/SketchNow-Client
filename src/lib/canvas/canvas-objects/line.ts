@@ -20,9 +20,9 @@ export class Line implements ICanvasObjectWithId {
     constructor(v: IObjectValueWithId) {
         this.x = v.x ?? 0;
         this.y = v.y ?? 0;
-        this.points = v.points ?? [];
+        this.points = [...(v.points ?? [])];
         this.id = v.id;
-        this.style = v.style ?? DefaultStyle;
+        this.style = { ...(v.style ?? DefaultStyle) };
     }
     points: [number, number][] = [];
     x = 0;

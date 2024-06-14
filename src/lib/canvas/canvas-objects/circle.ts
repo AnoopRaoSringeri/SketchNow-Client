@@ -23,7 +23,7 @@ export class Circle implements ICanvasObjectWithId {
         this.sa = v.sa ?? 0;
         this.ea = v.ea ?? 2 * Math.PI;
         this.id = v.id;
-        this.style = v.style ?? DefaultStyle;
+        this.style = { ...(v.style ?? DefaultStyle) };
     }
     x = 0;
     y = 0;

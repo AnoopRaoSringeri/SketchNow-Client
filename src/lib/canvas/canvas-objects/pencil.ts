@@ -18,9 +18,9 @@ export class Pencil implements ICanvasObjectWithId {
     id = uuid();
     style = DefaultStyle;
     constructor(v: IObjectValueWithId) {
-        this.points = v.points ?? [];
+        this.points = [...(v.points ?? [])];
         this.id = v.id;
-        this.style = v.style ?? DefaultStyle;
+        this.style = { ...(v.style ?? DefaultStyle) };
     }
     points: [number, number][] = [];
     private _isSelected = false;

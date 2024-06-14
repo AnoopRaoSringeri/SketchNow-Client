@@ -22,7 +22,7 @@ export class Square implements ICanvasObjectWithId {
         this.y = y ?? 0;
         this.h = h ?? 0;
         this.id = id;
-        this.style = style ?? DefaultStyle;
+        this.style = { ...(style ?? DefaultStyle) };
     }
     x = 0;
     y = 0;
