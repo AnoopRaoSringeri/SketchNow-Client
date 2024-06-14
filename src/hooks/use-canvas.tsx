@@ -13,53 +13,61 @@ export function useCanvas(canvasId: string) {
     } else {
         canvasBoard = savedCanvas;
     }
+    const copy = canvasBoard.CanvasCopy;
 
     useEffect(() => {
-        window.addEventListener("resize", onResize);
+        copy?.addEventListener("resize", onResize);
         return () => {
-            window.removeEventListener("resize", onResize);
+            copy?.removeEventListener("resize", onResize);
         };
     }, [onResize]);
 
     useEffect(() => {
-        window.addEventListener("mousedown", onMouseDown);
+        copy?.addEventListener("mousedown", onMouseDown);
         return () => {
-            window.removeEventListener("mousedown", onMouseDown);
+            copy?.removeEventListener("mousedown", onMouseDown);
         };
     }, [onMouseDown]);
 
     useEffect(() => {
-        window.addEventListener("touchstart", onTouchStart, { passive: false });
+        copy?.addEventListener("touchstart", onTouchStart, { passive: false });
         return () => {
-            window.removeEventListener("touchstart", onTouchStart);
+            copy?.removeEventListener("touchstart", onTouchStart);
         };
     }, [onTouchStart]);
 
     useEffect(() => {
-        window.addEventListener("mousemove", onMouseMove);
+        copy?.addEventListener("mousemove", onMouseMove);
         return () => {
-            window.removeEventListener("mousemove", onMouseMove);
+            copy?.removeEventListener("mousemove", onMouseMove);
         };
     }, [onMouseMove]);
 
     useEffect(() => {
-        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        copy?.addEventListener("touchmove", onTouchMove, { passive: false });
         return () => {
-            window.removeEventListener("touchmove", onTouchMove);
+            copy?.removeEventListener("touchmove", onTouchMove);
         };
     }, [onTouchMove]);
 
     useEffect(() => {
-        window.addEventListener("mouseup", onMouseUp);
+        copy?.addEventListener("mouseup", onMouseUp);
         return () => {
-            window.removeEventListener("mouseup", onMouseUp);
+            copy?.removeEventListener("mouseup", onMouseUp);
         };
     }, [onMouseUp]);
 
     useEffect(() => {
-        window.addEventListener("touchend", onTouchEnd);
+        copy?.addEventListener("mouseleave", onMouseUp);
         return () => {
-            window.removeEventListener("touchend", onTouchEnd);
+            copy?.removeEventListener("mouseleave", onMouseUp);
+        };
+    }, [onMouseUp]);
+
+    useEffect(() => {
+        copy?.addEventListener("touchend", onTouchEnd);
+        return () => {
+            copy?.removeEventListener("touchend", onTouchEnd);
         };
     }, [onTouchEnd]);
 
