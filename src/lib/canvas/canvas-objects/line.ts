@@ -8,21 +8,25 @@ import {
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
-    IObjectValueWithId,
     IToSVGOptions,
-    MouseAction
+    MouseAction,
+    PartialCanvasObject
 } from "@/types/custom-canvas";
 
+import { CanvasBoard } from "../canvas-board";
+
 export class Line implements ICanvasObjectWithId {
+    readonly _parent: CanvasBoard;
     type: ElementEnum = ElementEnum.Line;
     id = uuid();
     style = DefaultStyle;
-    constructor(v: IObjectValueWithId) {
+    constructor(v: PartialCanvasObject, parent: CanvasBoard) {
         this.x = v.x ?? 0;
         this.y = v.y ?? 0;
         this.points = [...(v.points ?? [])];
         this.id = v.id;
         this.style = { ...(v.style ?? DefaultStyle) };
+        this._parent = parent;
     }
     points: [number, number][] = [];
     x = 0;
@@ -52,9 +56,11 @@ export class Line implements ICanvasObjectWithId {
         ctx.moveTo(this.x, this.y);
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        const { points = [] } = objectValue;
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+        if (clearCanvas) {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+        const { points = this.points, x = this.x, y = this.y } = objectValue;
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         if (points.length > 0) {
@@ -63,6 +69,8 @@ export class Line implements ICanvasObjectWithId {
             ctx.stroke();
             this.points = points;
         }
+        this.x = x;
+        this.y = y;
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
@@ -114,6 +122,8 @@ export class Line implements ICanvasObjectWithId {
 
     getValues() {
         return {
+            type: this.type,
+            id: this.id,
             points: this.points,
             x: this.x,
             y: this.y,

@@ -71,6 +71,13 @@ export function useCanvas(canvasId: string) {
         };
     }, [onTouchEnd]);
 
+    useEffect(() => {
+        copy?.addEventListener("touchcancel", onTouchEnd);
+        return () => {
+            copy?.removeEventListener("touchcancel", onTouchEnd);
+        };
+    }, [onTouchEnd]);
+
     function onResize() {
         canvasBoard?.resizeBoard();
     }

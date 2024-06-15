@@ -8,15 +8,19 @@ import {
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
-    IObjectValueWithId,
     IToSVGOptions,
-    MouseAction
+    MouseAction,
+    PartialCanvasObject
 } from "@/types/custom-canvas";
+
+import { CanvasBoard } from "../canvas-board";
 export class Circle implements ICanvasObjectWithId {
+    readonly _parent: CanvasBoard;
     type: ElementEnum = ElementEnum.Circle;
     id = uuid();
     style = DefaultStyle;
-    constructor(v: IObjectValueWithId) {
+    constructor(v: PartialCanvasObject, parent: CanvasBoard) {
+        this._parent = parent;
         this.x = v.x ?? 0;
         this.y = v.y ?? 0;
         this.r = v.r ?? 0;
@@ -49,14 +53,20 @@ export class Circle implements ICanvasObjectWithId {
         ctx.closePath();
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        const { r = 0 } = objectValue;
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+        CanvasHelper.applyStyles(ctx, this.style);
+        const { r = this.r, x = this.x, y = this.y } = objectValue;
+        if (clearCanvas) {
+            CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
+        }
         ctx.beginPath();
         ctx.arc(this.x, this.y, r, this.sa, this.ea);
         ctx.stroke();
         ctx.fill();
+        ctx.closePath();
         this.r = r;
+        this.x = x;
+        this.y = y;
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
@@ -95,6 +105,8 @@ export class Circle implements ICanvasObjectWithId {
 
     getValues() {
         return {
+            type: this.type,
+            id: this.id,
             r: this.r,
             sa: this.sa,
             ea: this.ea,

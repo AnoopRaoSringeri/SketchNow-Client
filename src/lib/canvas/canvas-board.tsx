@@ -3,11 +3,27 @@ import { createRef } from "react";
 import { v4 as uuid } from "uuid";
 
 import { AdditionalCanvasOptions, CanvasMetadata, Position, Size } from "@/types/canvas";
-import { ElementEnum, ICanvas, ICanvasObjectWithId, IObjectStyle, IToSVGOptions } from "@/types/custom-canvas";
+import {
+    CanvasActionEnum,
+    ElementEnum,
+    ICanvas,
+    ICanvasObjectWithId,
+    ICanvasTransform,
+    IObjectStyle,
+    IToSVGOptions
+} from "@/types/custom-canvas";
 
 import { CanvasHelper, DefaultStyle } from "../canvas-helpers";
 import { CavasObjectMap } from "./canvas-objects/object-mapping";
 
+const DefaultTransform: ICanvasTransform = {
+    a: 1,
+    b: 0,
+    c: 0,
+    d: 1,
+    e: 0,
+    f: 0
+};
 export class CanvasBoard implements ICanvas {
     private _clicked = false;
     private _canvas: React.RefObject<HTMLCanvasElement>;
@@ -21,7 +37,10 @@ export class CanvasBoard implements ICanvas {
     private _hoveredObject: ICanvasObjectWithId | null = null;
     _selectedElements: ICanvasObjectWithId[] = [];
 
+    private _canvasTransform: ICanvasTransform = DefaultTransform;
+
     _elementType: ElementEnum = ElementEnum.Move;
+    _currentCanvasAction: CanvasActionEnum = CanvasActionEnum.Select;
 
     _style: IObjectStyle = DefaultStyle;
 
@@ -126,12 +145,48 @@ export class CanvasBoard implements ICanvas {
         this._selectedElements = elements;
     }
 
+    get Transform() {
+        return this._canvasTransform;
+    }
+
     init({ width, height }: Size) {
         if (!this.CanvasCopy) {
             return;
         }
         this.Canvas.width = this.CanvasCopy.width = width;
         this.Canvas.height = this.CanvasCopy.height = height;
+    }
+
+    loadBoard(metadata: CanvasMetadata, { height, readonly, width, draw }: Partial<AdditionalCanvasOptions>) {
+        this.ReadOnly = readonly ?? false;
+        this.Height = height ?? metadata.size.height;
+        this.Width = width ?? metadata.size.width;
+        this._canvasTransform = metadata.tranform;
+        const context = this.Canvas.getContext("2d");
+        if (context) {
+            const objArray = metadata.elements.map((ele) => {
+                return CavasObjectMap[ele.type](ele, this);
+            });
+            this._elements = objArray;
+            if (draw) {
+                this.redrawBoard();
+            }
+        }
+    }
+
+    createBoard({ height = window.innerHeight, width = window.innerWidth }: Partial<AdditionalCanvasOptions>) {
+        this.Height = height;
+        this.Width = width;
+    }
+
+    resizeBoard() {
+        this.Canvas.width = window.innerWidth;
+        this.Canvas.height = window.innerHeight;
+        if (this.CanvasCopy) {
+            this.CanvasCopy.width = window.innerWidth;
+            this.CanvasCopy.height = window.innerHeight;
+        }
+        this.redrawBoard();
     }
 
     setStyle<T extends keyof IObjectStyle>(key: T, value: IObjectStyle[T]) {
@@ -168,9 +223,6 @@ export class CanvasBoard implements ICanvas {
         if (!context) {
             return;
         }
-        if (e.target != this.CanvasCopy) {
-            return;
-        }
         if (
             this._selectedElements.length != 0 &&
             (this._hoveredObject == null || this._hoveredObject.id != this._selectedElements[0].id)
@@ -179,26 +231,35 @@ export class CanvasBoard implements ICanvas {
         }
         const { offsetX, offsetY } = e;
         this._pointerOrigin = { x: offsetX, y: offsetY };
+        const { ax, ay } = CanvasHelper.getMousePosition(this._pointerOrigin, this._canvasTransform);
         if (this.ElementType == ElementEnum.Move) {
-            if (this._hoveredObject && e.detail == 1) {
-                this._elements = this.Elements.filter((e) => e.id != this._hoveredObject!.id);
-                this.redrawBoard();
-                this._activeObjects = [this._hoveredObject];
-                this.SelectedElements = [this._hoveredObject];
-                this._activeObjects.forEach((ao) => {
-                    ao.move(context, { x: 0, y: 0 }, "down");
-                });
+            if (e.detail == 1) {
+                if (e.ctrlKey) {
+                    this._currentCanvasAction = CanvasActionEnum.Pan;
+                } else if (this._hoveredObject) {
+                    this._elements = this.Elements.filter((e) => e.id != this._hoveredObject!.id);
+                    this.redrawBoard();
+                    this._activeObjects = [this._hoveredObject];
+                    this.SelectedElements = [this._hoveredObject];
+                    // const { e, f } = this._canvasTransform;
+                    this._activeObjects.forEach((ao) => {
+                        ao.move(context, { x: 0, y: 0 }, "down");
+                    });
+                }
             }
         } else {
-            const newObj = CavasObjectMap[this.ElementType]({
-                x: offsetX,
-                y: offsetY,
-                h: 0,
-                w: 0,
-                points: [[offsetX, offsetY]],
-                id: uuid(),
-                style: this.Style
-            });
+            const newObj = CavasObjectMap[this.ElementType](
+                {
+                    x: ax,
+                    y: ay,
+                    h: 0,
+                    w: 0,
+                    points: [[ax, ay]],
+                    id: uuid(),
+                    style: this.Style
+                },
+                this
+            );
             newObj.create(context);
             this._activeObjects.push(newObj);
         }
@@ -214,12 +275,29 @@ export class CanvasBoard implements ICanvas {
         }
         const { offsetX, offsetY } = e;
         if (this._pointerOrigin) {
-            const { x, y } = this._pointerOrigin;
+            const { x, y } = CanvasHelper.getMousePosition(this._pointerOrigin, this._canvasTransform);
             if (this.ElementType == ElementEnum.Move) {
-                this.SelectedElements = [];
-                this._activeObjects.forEach((ao) => {
-                    ao.move(context, { x: offsetX - x, y: offsetY - y }, "move");
-                });
+                if (this._currentCanvasAction == CanvasActionEnum.Pan) {
+                    const ctx = this.Canvas.getContext("2d");
+                    if (!ctx) {
+                        return;
+                    }
+                    const dx = offsetX - x;
+                    const dy = offsetY - y;
+                    this._canvasTransform.e += dx;
+                    this._canvasTransform.f += dy;
+                    CanvasHelper.clearCanvasArea(ctx, this._canvasTransform);
+                    ctx.resetTransform();
+                    const { a, b, c, d, e, f } = this._canvasTransform;
+                    ctx.transform(a, b, c, d, e, f);
+                    this._pointerOrigin = { x: offsetX, y: offsetY };
+                    this.redrawBoard();
+                } else {
+                    this.SelectedElements = [];
+                    this._activeObjects.forEach((ao) => {
+                        ao.move(context, { x: offsetX - x, y: offsetY - y }, "move");
+                    });
+                }
             } else {
                 const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
                 this._activeObjects.forEach((ao) => {
@@ -232,7 +310,7 @@ export class CanvasBoard implements ICanvas {
                 });
             }
         } else if (this.ElementType == ElementEnum.Move) {
-            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this._elements);
+            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this._elements, this._canvasTransform);
             if (ele) {
                 this.CanvasCopy.style.cursor = "move";
                 this._hoveredObject = ele;
@@ -244,6 +322,9 @@ export class CanvasBoard implements ICanvas {
     }
 
     onMouseUp(e: MouseEvent) {
+        if (!this._clicked) {
+            return;
+        }
         this._clicked = false;
         if (!this.CanvasCopy) {
             return;
@@ -252,10 +333,10 @@ export class CanvasBoard implements ICanvas {
         if (!context) {
             return;
         }
+        const { offsetX, offsetY } = e;
         if (this._activeObjects.length != 0) {
-            const { offsetX, offsetY } = e;
             if (this._activeObjects.length != 0 && this._pointerOrigin) {
-                const { x, y } = this._pointerOrigin;
+                const { x, y } = CanvasHelper.getMousePosition(this._pointerOrigin, this._canvasTransform);
                 if (this.ElementType == ElementEnum.Move) {
                     this._activeObjects.forEach((ao) => {
                         ao.move(context, { x: offsetX - x, y: offsetY - y }, "up");
@@ -264,7 +345,11 @@ export class CanvasBoard implements ICanvas {
                 } else {
                     const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
                     this._activeObjects.forEach((ao) => {
-                        ao.update(context, { w: offsetX - x, h: offsetY - y, r });
+                        ao.update(context, {
+                            w: offsetX - x,
+                            h: offsetY - y,
+                            r
+                        });
                     });
                 }
             }
@@ -272,6 +357,9 @@ export class CanvasBoard implements ICanvas {
             this.saveBoard();
         } else {
             this._pointerOrigin = null;
+            context.closePath();
+            this.redrawBoard();
+            this._currentCanvasAction = CanvasActionEnum.Select;
             return;
         }
     }
@@ -301,7 +389,7 @@ export class CanvasBoard implements ICanvas {
         }
         const elementToCopy = this.Elements.find((e) => e.id == id);
         if (elementToCopy) {
-            const copyElement = CavasObjectMap[elementToCopy.type]({ ...elementToCopy, id: uuid() });
+            const copyElement = CavasObjectMap[elementToCopy.type]({ ...elementToCopy, id: uuid() }, this);
             copyElement.move(context, { x: 0, y: 0 }, "down");
             copyElement.move(context, { x: 40, y: 40 }, "up");
             context.closePath();
@@ -309,37 +397,6 @@ export class CanvasBoard implements ICanvas {
             this.SelectedElements = [copyElement];
             this.saveBoard();
         }
-    }
-
-    loadBoard(metadata: CanvasMetadata, { height, readonly, width, draw }: Partial<AdditionalCanvasOptions>) {
-        this.ReadOnly = readonly ?? false;
-        this.Height = height ?? metadata.size.height;
-        this.Width = width ?? metadata.size.width;
-        const context = this.Canvas.getContext("2d");
-        if (context) {
-            const objArray = metadata.elements.map((ele) => {
-                return CavasObjectMap[ele.type](ele);
-            });
-            this._elements = objArray;
-            if (draw) {
-                this.redrawBoard();
-            }
-        }
-    }
-
-    createBoard({ height = window.innerHeight, width = window.innerWidth }: Partial<AdditionalCanvasOptions>) {
-        this.Height = height;
-        this.Width = width;
-    }
-
-    resizeBoard() {
-        this.Canvas.width = window.innerWidth;
-        this.Canvas.height = window.innerHeight;
-        if (this.CanvasCopy) {
-            this.CanvasCopy.width = window.innerWidth;
-            this.CanvasCopy.height = window.innerHeight;
-        }
-        this.redrawBoard();
     }
 
     saveBoard() {
@@ -356,13 +413,19 @@ export class CanvasBoard implements ICanvas {
         if (this.CanvasCopy) {
             const contextCopy = this.CanvasCopy.getContext("2d");
             if (contextCopy) {
-                contextCopy.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                CanvasHelper.clearCanvasArea(contextCopy, this._canvasTransform);
+                contextCopy.resetTransform();
+                const { a, b, c, d, e, f } = this._canvasTransform;
+                contextCopy.transform(a, b, c, d, e, f);
                 contextCopy.restore();
             }
         }
         const context = this.Canvas.getContext("2d");
         if (context) {
-            context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            CanvasHelper.clearCanvasArea(context, this._canvasTransform);
+            context.resetTransform();
+            const { a, b, c, d, e, f } = this._canvasTransform;
+            context.transform(a, b, c, d, e, f);
             this.Elements.forEach((ele) => {
                 ele.draw(context);
             });
@@ -376,10 +439,16 @@ export class CanvasBoard implements ICanvas {
         this.ElementType = ElementEnum.Move;
         this.ReadOnly = false;
         this._hoveredObject = null;
+        this._currentCanvasAction = CanvasActionEnum.Select;
+        this._canvasTransform = DefaultTransform;
     }
 
     toJSON(): CanvasMetadata {
-        return { elements: [...this.Elements], size: { height: this.Height, width: this.Width } };
+        return {
+            elements: [...this.Elements.map((ele) => ele.getValues())],
+            size: { height: this.Height, width: this.Width },
+            tranform: this._canvasTransform
+        };
     }
 
     toSVG({ height, width }: IToSVGOptions) {
@@ -399,20 +468,13 @@ export class CanvasBoard implements ICanvas {
         if (!context) {
             return;
         }
-        if (e.target != this.CanvasCopy) {
-            return;
-        }
-        if (
-            e.target == this.CanvasCopy &&
-            this._selectedElements.length != 0 &&
-            this._hoveredObject?.id != this._selectedElements[0]?.id
-        ) {
+        if (this._selectedElements.length != 0 && this._hoveredObject?.id != this._selectedElements[0]?.id) {
             this.unSelectElements();
         }
         const { clientX: offsetX, clientY: offsetY } = e.touches[0];
         this._pointerOrigin = { x: offsetX, y: offsetY };
         if (this.ElementType == ElementEnum.Move) {
-            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this._elements);
+            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this._elements, this._canvasTransform);
             if (ele) {
                 this._elements = this.Elements.filter((e) => e.id != ele.id);
                 this.redrawBoard();
@@ -422,15 +484,18 @@ export class CanvasBoard implements ICanvas {
                 this._activeObjects[0].move(context, { x: 0, y: 0 }, "down");
             }
         } else {
-            const newObj = CavasObjectMap[this.ElementType]({
-                x: offsetX,
-                y: offsetY,
-                h: 0,
-                w: 0,
-                points: [[offsetX, offsetY]],
-                id: uuid(),
-                style: this.Style
-            });
+            const newObj = CavasObjectMap[this.ElementType](
+                {
+                    x: offsetX,
+                    y: offsetY,
+                    h: 0,
+                    w: 0,
+                    points: [[offsetX, offsetY]],
+                    id: uuid(),
+                    style: this.Style
+                },
+                this
+            );
             newObj.create(context);
             this._activeObjects.push(newObj);
         }
@@ -470,10 +535,6 @@ export class CanvasBoard implements ICanvas {
             return;
         }
         if (this._activeObjects.length != 0) {
-            if (e.target != this.CanvasCopy) {
-                this.saveBoard();
-                return;
-            }
             const { clientX: offsetX, clientY: offsetY } = e.changedTouches[0];
             if (this._activeObjects.length != 0 && this._pointerOrigin) {
                 const { x, y } = this._pointerOrigin;

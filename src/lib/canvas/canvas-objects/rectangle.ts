@@ -8,22 +8,26 @@ import {
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
-    IObjectValueWithId,
     IToSVGOptions,
-    MouseAction
+    MouseAction,
+    PartialCanvasObject
 } from "@/types/custom-canvas";
 
+import { CanvasBoard } from "../canvas-board";
+
 export class Rectangle implements ICanvasObjectWithId {
+    readonly _parent: CanvasBoard;
     type: ElementEnum = ElementEnum.Rectangle;
     id = uuid();
     style = DefaultStyle;
-    constructor({ x, y, h, w, id, style }: IObjectValueWithId) {
+    constructor({ x, y, h, w, id, style }: PartialCanvasObject, parent: CanvasBoard) {
         this.x = x ?? 0;
         this.y = y ?? 0;
         this.h = h ?? 0;
         this.w = w ?? 0;
         this.id = id;
         this.style = { ...(style ?? DefaultStyle) };
+        this._parent = parent;
     }
     x = 0;
     y = 0;
@@ -51,22 +55,27 @@ export class Rectangle implements ICanvasObjectWithId {
         CanvasHelper.applyStyles(ctx, this.style);
         ctx.strokeRect(this.x, this.y, this.w, this.h);
         ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.closePath();
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        const { h = 0, w = 0 } = objectValue;
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+        const { h = this.h, w = this.w, x = this.x, y = this.y } = objectValue;
         CanvasHelper.applyStyles(ctx, this.style);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (clearCanvas) {
+            CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
+        }
         ctx.strokeRect(this.x, this.y, this.w, this.h);
         ctx.fillRect(this.x, this.y, this.w, this.h);
         this.h = h;
         this.w = w;
+        this.x = x;
+        this.y = y;
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
         this.style[key] = value;
         CanvasHelper.applyStyles(ctx, this.style);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         ctx.strokeRect(this.x, this.y, this.w, this.h);
         ctx.fillRect(this.x, this.y, this.w, this.h);
     }
@@ -76,7 +85,7 @@ export class Rectangle implements ICanvasObjectWithId {
         if (action == "down") {
             CanvasHelper.applyStyles(ctx, this.style);
         }
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         const offsetX = x + this.x;
         const offsetY = y + this.y;
         ctx.strokeRect(offsetX, offsetY, this.w, this.h);
@@ -89,6 +98,8 @@ export class Rectangle implements ICanvasObjectWithId {
 
     getValues() {
         return {
+            type: this.type,
+            id: this.id,
             h: this.h,
             w: this.w,
             x: this.x,

@@ -1,5 +1,11 @@
 import { Position, Size } from "@/types/canvas";
-import { ICanvasObjectWithId, IObjectStyle, IObjectValue, IToSVGOptions } from "@/types/custom-canvas";
+import {
+    ICanvasObjectWithId,
+    ICanvasTransform,
+    IObjectStyle,
+    IObjectValue,
+    IToSVGOptions
+} from "@/types/custom-canvas";
 
 export const DefaultStyle: IObjectStyle = { fillColor: "transparent", strokeStyle: "#fff", strokeWidth: 1 };
 const HOVER_OFFSET = 10;
@@ -17,13 +23,13 @@ export class CanvasHelper {
         return { height: nSize.height / cSize.height, width: nSize.width / cSize.width };
     }
 
-    static isUnderMouse(mousePosition: Position, values: Partial<IObjectValue>) {
+    static isUnderMouse(mousePosition: Position, values: Partial<IObjectValue>, transform: ICanvasTransform) {
         const { x, y } = mousePosition;
         const { x: cx = 0, y: cy = 0, h = 0, w = 0, r = 0, points = [], style = DefaultStyle } = values;
         const { strokeWidth } = style;
         const wFactor = strokeWidth / 2;
-        const ucx = cx - wFactor;
-        const ucy = cy - wFactor;
+        const ucx = cx + transform.e + -wFactor;
+        const ucy = cy + transform.f + -wFactor;
         const uh = h + wFactor * 2;
         const uw = w + wFactor * 2;
         const ur = r + wFactor;
@@ -44,8 +50,8 @@ export class CanvasHelper {
         );
     }
 
-    static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[]) {
-        return elements.find((e) => this.isUnderMouse(mouseCords, e.getValues()));
+    static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[], transform: ICanvasTransform) {
+        return elements.find((e) => this.isUnderMouse(mouseCords, e.getValues(), transform));
     }
 
     static applyStyles(ctx: CanvasRenderingContext2D, style: IObjectStyle) {
@@ -58,5 +64,18 @@ export class CanvasHelper {
 
     static getHTMLStyle(style: IObjectStyle, { height, width }: IToSVGOptions) {
         return `fill: ${style.fillColor}; stroke: ${style.strokeStyle}; stroke-width: ${style.strokeWidth * Math.max(height, width)}px;`;
+    }
+
+    static getMousePosition({ x, y }: Position, { e, f }: ICanvasTransform) {
+        return { x, y, ax: x - e, ay: y - f };
+    }
+
+    static clearCanvasArea(ctx: CanvasRenderingContext2D, transform: ICanvasTransform) {
+        ctx.clearRect(
+            -Math.abs(transform.e),
+            -Math.abs(transform.f),
+            window.innerWidth + Math.abs(transform.e) * 2,
+            window.innerHeight + Math.abs(transform.f) * 2
+        );
     }
 }

@@ -1,3 +1,5 @@
+import { CanvasBoard } from "@/lib/canvas/canvas-board";
+
 import { Position, Size } from "./canvas";
 
 export interface IObjectValue {
@@ -23,12 +25,11 @@ export interface IObjectValueWithId extends Partial<IObjectValue> {
 }
 export interface IToSVGOptions extends Size {}
 export type MouseAction = "down" | "move" | "up";
-export interface ICanvasObject extends Partial<IObjectValue> {
-    type: ElementEnum;
-    IsSelected: boolean;
+
+export interface ICanvasObjectMethods {
     draw: (ctx: CanvasRenderingContext2D) => unknown;
     create: (ctx: CanvasRenderingContext2D) => unknown;
-    update: (ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) => unknown;
+    update: (ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas?: boolean) => unknown;
     updateStyle: <T extends keyof IObjectStyle>(
         ctx: CanvasRenderingContext2D,
         key: T,
@@ -36,29 +37,41 @@ export interface ICanvasObject extends Partial<IObjectValue> {
     ) => unknown;
     move: (ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) => unknown;
     toSVG: (options: IToSVGOptions) => string;
-    getValues: () => Partial<IObjectValue>;
+    getValues: () => CanvasObject;
     onSelect?: () => unknown;
     delete?: () => unknown;
     get?: () => this;
     set?: <T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) => unknown;
     resize?: (size: Size) => unknown;
 }
+export interface ICanvasObject extends Partial<IObjectValue>, ICanvasObjectMethods {
+    type: ElementEnum;
+    IsSelected: boolean;
+    readonly _parent: CanvasBoard;
+}
 
 export interface ICanvasObjectWithId extends ICanvasObject {
     id: string;
 }
+
+export type PartialCanvasObject = Partial<ICanvasObject> & { id: string };
+
+export type CanvasObject = PartialCanvasObject & { type: ElementEnum };
 
 export interface ICanvas {
     Canvas: HTMLCanvasElement | null;
     Elements: ICanvasObject[];
     toJSON: () => unknown;
     toSVG: (options: IToSVGOptions) => string;
-    // getElement?: (elementId: string) => ICanvasObject;
-    // setElement?: (elementId: string, element: ICanvasObject) => unknown;
-    // moveElement?: (elementId: string, position: Position) => unknown;
-    // resizeElement?: (elementId: string, size: ElementSize) => unknown;
-    // onSelect?: () => unknown;
-    // removeElement?: () => unknown;
+}
+
+export interface ICanvasTransform {
+    a: number;
+    b: number;
+    c: number;
+    d: number;
+    e: number;
+    f: number;
 }
 
 export enum ElementEnum {
@@ -69,4 +82,10 @@ export enum ElementEnum {
     Ellipse = "ellipse",
     Pencil = "pencil",
     Move = "move"
+}
+
+export enum CanvasActionEnum {
+    Pan = "pan",
+    Zoom = "zoom",
+    Select = "select"
 }

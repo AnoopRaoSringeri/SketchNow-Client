@@ -8,19 +8,24 @@ import {
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
-    IObjectValueWithId,
     IToSVGOptions,
-    MouseAction
+    MouseAction,
+    PartialCanvasObject
 } from "@/types/custom-canvas";
 
+import { CanvasBoard } from "../canvas-board";
+
 export class Pencil implements ICanvasObjectWithId {
+    readonly _parent: CanvasBoard;
+
     type: ElementEnum = ElementEnum.Pencil;
     id = uuid();
     style = DefaultStyle;
-    constructor(v: IObjectValueWithId) {
+    constructor(v: PartialCanvasObject, parent: CanvasBoard) {
         this.points = [...(v.points ?? [])];
         this.id = v.id;
         this.style = { ...(v.style ?? DefaultStyle) };
+        this._parent = parent;
     }
     points: [number, number][] = [];
     private _isSelected = false;
@@ -55,18 +60,25 @@ export class Pencil implements ICanvasObjectWithId {
         ctx.stroke();
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        const { points = [] } = objectValue;
-        if (points.length > 0) {
-            const [prevX, prevY] = this.points[this.points.length - 1];
-            const [x, y] = points[0];
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            if (prevX != x || prevY != y) {
-                this.points.push([x, y]);
-            }
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+        if (clearCanvas) {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         }
+        const { points = this.points } = objectValue;
+        ctx.beginPath();
+        if (this.points.length > 0) {
+            this.points.forEach((p, i) => {
+                const [px, py] = p;
+                if (i == 0) {
+                    ctx.moveTo(px, py);
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            });
+            ctx.stroke();
+        }
+        ctx.closePath();
+        this.points = points;
     }
 
     move(ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) {
@@ -125,6 +137,8 @@ export class Pencil implements ICanvasObjectWithId {
 
     getValues() {
         return {
+            type: this.type,
+            id: this.id,
             points: this.points,
             style: this.style
         };

@@ -8,21 +8,25 @@ import {
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
-    IObjectValueWithId,
     IToSVGOptions,
-    MouseAction
+    MouseAction,
+    PartialCanvasObject
 } from "@/types/custom-canvas";
 
+import { CanvasBoard } from "../canvas-board";
+
 export class Square implements ICanvasObjectWithId {
+    readonly _parent: CanvasBoard;
     type: ElementEnum = ElementEnum.Square;
     id = uuid();
     style = DefaultStyle;
-    constructor({ x, y, h, id, style }: IObjectValueWithId) {
+    constructor({ x, y, h, id, style }: PartialCanvasObject, parent: CanvasBoard) {
         this.x = x ?? 0;
         this.y = y ?? 0;
         this.h = h ?? 0;
         this.id = id;
         this.style = { ...(style ?? DefaultStyle) };
+        this._parent = parent;
     }
     x = 0;
     y = 0;
@@ -43,11 +47,13 @@ export class Square implements ICanvasObjectWithId {
         ctx.fillRect(this.x, this.y, this.h, this.h);
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>) {
-        const { h = 0, w = 0 } = objectValue;
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+        const { h = this.h, w = this.h } = objectValue;
         const side = Math.min(h, w);
         CanvasHelper.applyStyles(ctx, this.style);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (clearCanvas) {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
         ctx.strokeRect(this.x, this.y, side, side);
         ctx.fillRect(this.x, this.y, side, side);
         this.h = side;
@@ -79,6 +85,8 @@ export class Square implements ICanvasObjectWithId {
 
     getValues() {
         return {
+            type: this.type,
+            id: this.id,
             h: this.h,
             x: this.x,
             y: this.y,
