@@ -4,6 +4,15 @@ export interface Position {
     x: number;
     y: number;
 }
+export interface AbsPosition {
+    ax: number;
+    ay: number;
+}
+
+export interface Delta {
+    dx: number;
+    dy: number;
+}
 
 export interface Size {
     height: number;

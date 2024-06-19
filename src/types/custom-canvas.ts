@@ -1,6 +1,6 @@
 import { CanvasBoard } from "@/lib/canvas/canvas-board";
 
-import { Position, Size } from "./canvas";
+import { AbsPosition, Delta, Position, Size } from "./canvas";
 
 export interface IObjectValue {
     x: number;
@@ -29,7 +29,12 @@ export type MouseAction = "down" | "move" | "up";
 export interface ICanvasObjectMethods {
     draw: (ctx: CanvasRenderingContext2D) => unknown;
     create: (ctx: CanvasRenderingContext2D) => unknown;
-    update: (ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas?: boolean) => unknown;
+    update: (
+        ctx: CanvasRenderingContext2D,
+        objectValue: Partial<IObjectValue>,
+        action: MouseAction,
+        clearCanvas?: boolean
+    ) => unknown;
     updateStyle: <T extends keyof IObjectStyle>(
         ctx: CanvasRenderingContext2D,
         key: T,
@@ -38,11 +43,15 @@ export interface ICanvasObjectMethods {
     move: (ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) => unknown;
     toSVG: (options: IToSVGOptions) => string;
     getValues: () => CanvasObject;
-    onSelect?: () => unknown;
-    delete?: () => unknown;
-    get?: () => this;
-    set?: <T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) => unknown;
-    resize?: (size: Size) => unknown;
+    select: (cords: Partial<IObjectValue>) => unknown;
+    unSelect: () => unknown;
+    resize: (
+        ctx: CanvasRenderingContext2D,
+        delta: Delta,
+        curorPosition: CursorPosition,
+        action: MouseAction
+    ) => unknown;
+    getPosition: () => Position & AbsPosition;
 }
 export interface ICanvasObject extends Partial<IObjectValue>, ICanvasObjectMethods {
     type: ElementEnum;
@@ -87,5 +96,9 @@ export enum ElementEnum {
 export enum CanvasActionEnum {
     Pan = "pan",
     Zoom = "zoom",
-    Select = "select"
+    Select = "select",
+    Resize = "resize",
+    Move = "move"
 }
+
+export type CursorPosition = "m" | "tl" | "tr" | "br" | "bl" | "l" | "r" | "t" | "b";

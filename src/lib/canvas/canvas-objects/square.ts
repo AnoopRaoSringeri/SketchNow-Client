@@ -1,10 +1,9 @@
 import { v4 as uuid } from "uuid";
 
-import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
+import { CanvasHelper, DefaultStyle, GUTTER } from "@/lib/canvas-helpers";
 import { Position, Size } from "@/types/canvas";
 import {
     ElementEnum,
-    ICanvasObject,
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
@@ -37,8 +36,56 @@ export class Square implements ICanvasObjectWithId {
         return this._isSelected;
     }
 
+    select({ x, y }: Position) {
+        this._isSelected = true;
+        if (this._parent.CanvasCopy) {
+            const copyCtx = this._parent.CanvasCopy.getContext("2d");
+            if (copyCtx) {
+                copyCtx.save();
+                copyCtx.strokeStyle = "#00ffff";
+                copyCtx.fillStyle = "#00ffff";
+                copyCtx.lineWidth = 1;
+                copyCtx.strokeRect(x - GUTTER, y - GUTTER, this.h + GUTTER * 2, this.h + GUTTER * 2);
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x, y);
+                copyCtx.arc(x, y, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x, y + this.h);
+                copyCtx.arc(x, y + this.h, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x + this.h, y);
+                copyCtx.arc(x + this.h, y, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x + this.h, y + this.h);
+                copyCtx.arc(x + this.h, y + this.h, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.closePath();
+                copyCtx.restore();
+            }
+        }
+    }
+
+    unSelect() {
+        this._isSelected = false;
+    }
+
     draw(ctx: CanvasRenderingContext2D) {
         this.create(ctx);
+        if (this.IsSelected) {
+            this.select({ x: this.x, y: this.y });
+        }
     }
 
     create(ctx: CanvasRenderingContext2D) {
@@ -77,6 +124,7 @@ export class Square implements ICanvasObjectWithId {
         const offsetY = y + this.y;
         ctx.strokeRect(offsetX, offsetY, this.h, this.h);
         ctx.fillRect(offsetX, offsetY, this.h, this.h);
+        this.select({ x: offsetX, y: offsetY });
         if (action == "up") {
             this.x = offsetX;
             this.y = offsetY;
@@ -94,10 +142,8 @@ export class Square implements ICanvasObjectWithId {
         };
     }
 
-    delete() {}
-    onSelect() {}
-    set<T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) {
-        console.log(key, value);
+    getPosition() {
+        return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
     }
 
     resize(size: Size) {

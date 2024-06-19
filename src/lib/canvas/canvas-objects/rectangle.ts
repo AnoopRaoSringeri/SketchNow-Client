@@ -1,10 +1,10 @@
 import { v4 as uuid } from "uuid";
 
-import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { Position, Size } from "@/types/canvas";
+import { CanvasHelper, DefaultStyle, GUTTER } from "@/lib/canvas-helpers";
+import { Delta, Position } from "@/types/canvas";
 import {
+    CursorPosition,
     ElementEnum,
-    ICanvasObject,
     ICanvasObjectWithId,
     IObjectStyle,
     IObjectValue,
@@ -43,12 +43,56 @@ export class Rectangle implements ICanvasObjectWithId {
         return this.style;
     }
 
-    select() {
+    select({ x = this.x, y = this.y, h = this.h, w = this.w }: Partial<IObjectValue>) {
         this._isSelected = true;
+        if (this._parent.CanvasCopy) {
+            const copyCtx = this._parent.CanvasCopy.getContext("2d");
+            if (copyCtx) {
+                copyCtx.save();
+                copyCtx.strokeStyle = "#00ffff";
+                copyCtx.fillStyle = "#00ffff";
+                copyCtx.lineWidth = 0.5;
+                copyCtx.strokeRect(x - GUTTER, y - GUTTER, w + GUTTER * 2, h + GUTTER * 2);
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x, y);
+                copyCtx.arc(x, y, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x, y + h);
+                copyCtx.arc(x, y + h, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x + w, y);
+                copyCtx.arc(x + w, y, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.beginPath();
+                copyCtx.moveTo(x + w, y + h);
+                copyCtx.arc(x + w, y + h, 4, 0, 2 * Math.PI);
+                copyCtx.stroke();
+                copyCtx.fill();
+
+                copyCtx.closePath();
+                copyCtx.restore();
+            }
+        }
+    }
+
+    unSelect() {
+        this._isSelected = false;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         this.create(ctx);
+        if (this.IsSelected) {
+            this.select({ x: this.x, y: this.y });
+        }
     }
 
     create(ctx: CanvasRenderingContext2D) {
@@ -58,18 +102,30 @@ export class Rectangle implements ICanvasObjectWithId {
         ctx.closePath();
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
-        const { h = this.h, w = this.w, x = this.x, y = this.y } = objectValue;
-        CanvasHelper.applyStyles(ctx, this.style);
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
+        let { h = this.h, w = this.w, x = this.x, y = this.y } = objectValue;
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
+        }
         if (clearCanvas) {
             CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         }
-        ctx.strokeRect(this.x, this.y, this.w, this.h);
-        ctx.fillRect(this.x, this.y, this.w, this.h);
-        this.h = h;
-        this.w = w;
-        this.x = x;
-        this.y = y;
+        if (h < 0) {
+            y = y + h;
+            h = Math.abs(h);
+        }
+        if (w < 0) {
+            x = x + w;
+            w = Math.abs(w);
+        }
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(x, y, w, h);
+        if (action == "up") {
+            this.h = h;
+            this.w = w;
+            this.x = x;
+            this.y = y;
+        }
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
@@ -90,6 +146,7 @@ export class Rectangle implements ICanvasObjectWithId {
         const offsetY = y + this.y;
         ctx.strokeRect(offsetX, offsetY, this.w, this.h);
         ctx.fillRect(offsetX, offsetY, this.w, this.h);
+        this.select({ x: offsetX, y: offsetY });
         if (action == "up") {
             this.x = offsetX;
             this.y = offsetY;
@@ -108,14 +165,109 @@ export class Rectangle implements ICanvasObjectWithId {
         };
     }
 
-    delete() {}
-    onSelect() {}
-    set<T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) {
-        console.log(key, value);
+    getPosition() {
+        return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
     }
 
-    resize(size: Size) {
-        console.log(size);
+    onSelect() {}
+
+    resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
+        const { dx, dy } = delta;
+        console.log(dx, dy);
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
+        }
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
+        let w = dx;
+        let h = dy;
+        let y = this.y;
+        let x = this.x;
+        switch (cPos) {
+            case "tl":
+                x = x + w;
+                y = y + h;
+                if (h < 0) {
+                    h = Math.abs(Math.abs(h) + this.h);
+                } else {
+                    h = Math.abs(this.h - Math.abs(h));
+                }
+                if (w < 0) {
+                    w = Math.abs(Math.abs(w) + this.w);
+                } else {
+                    w = Math.abs(this.w - Math.abs(w));
+                }
+                break;
+            case "tr":
+                y = y + h;
+                if (h < 0) {
+                    h = Math.abs(this.h + Math.abs(h));
+                } else {
+                    h = Math.abs(Math.abs(h) - this.h);
+                }
+                if (w < 0) {
+                    w = this.w + w;
+                } else {
+                    w = Math.abs(this.w + Math.abs(w));
+                }
+                break;
+            case "bl":
+                x = x + w;
+                if (h < 0) {
+                    h = this.h - Math.abs(h);
+                } else {
+                    h = Math.abs(Math.abs(h) + this.h);
+                }
+                if (w < 0) {
+                    w = Math.abs(this.w + Math.abs(w));
+                } else {
+                    w = Math.abs(this.w - Math.abs(w));
+                }
+                break;
+            case "br":
+                if (h < 0) {
+                    h = h + this.h;
+                } else {
+                    h = Math.abs(this.h + Math.abs(h));
+                }
+                if (w < 0) {
+                    w = this.w + w;
+                } else {
+                    w = Math.abs(this.w + Math.abs(w));
+                }
+                break;
+            case "t":
+                break;
+            case "b":
+                break;
+            case "l":
+                break;
+            case "r":
+                break;
+        }
+        console.log(x, y, w, h, this.x, this.y, this.w, this.h, action);
+        if (x >= this.x + this.w) {
+            x = this.x + this.w;
+        }
+        if (y >= this.y + this.h) {
+            y = this.y + this.h;
+        }
+        if (h < 0) {
+            y = y + h;
+            h = Math.abs(h);
+        }
+        if (w < 0) {
+            x = x + w;
+            w = Math.abs(w);
+        }
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(x, y, w, h);
+        this.select({ h, w, x, y });
+        if (action == "up") {
+            this.h = h;
+            this.w = w;
+            this.x = x;
+            this.y = y;
+        }
     }
 
     toSVG(options: IToSVGOptions) {

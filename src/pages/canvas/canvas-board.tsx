@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useStore } from "@/api-stores/store-provider";
+import { ElementOptions } from "@/components/mini-components/element-options";
 import { Loader } from "@/components/ui/loader";
 import { useCanvas } from "@/hooks/use-canvas";
 
 import CanvasOptions from "./canvas-options";
-import { ElementOptions } from "./element-options";
 
 export const CanvasBoard = observer(function CanvasBoard() {
     const { id } = useParams<{ id: string }>();

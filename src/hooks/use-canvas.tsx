@@ -78,6 +78,13 @@ export function useCanvas(canvasId: string) {
         };
     }, [onTouchEnd]);
 
+    useEffect(() => {
+        copy?.addEventListener("wheel", onWheelAction);
+        return () => {
+            copy?.removeEventListener("wheel", onWheelAction);
+        };
+    }, [onWheelAction]);
+
     function onResize() {
         canvasBoard?.resizeBoard();
     }
@@ -110,5 +117,8 @@ export function useCanvas(canvasId: string) {
         CanvasMap.delete(id);
     }
 
+    function onWheelAction(e: WheelEvent) {
+        canvasBoard?.onWheelAction(e);
+    }
     return { canvasBoard, removeCanvasCache };
 }

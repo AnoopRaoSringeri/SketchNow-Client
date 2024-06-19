@@ -5,15 +5,16 @@ import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
 import { useStore } from "@/api-stores/store-provider";
+import { CanvasStyleEditor } from "@/components/mini-components/canvas-style-editor";
+import { ElemntStyleEditor } from "@/components/mini-components/element-style-editor";
+import { ZoomController } from "@/components/mini-components/zoom-controller";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCanvas } from "@/hooks/use-canvas";
 import { ElementEnum } from "@/types/custom-canvas";
 import { Option } from "@/types/layout";
 
-import { CanvasStyleEditor } from "./canvas-style-editor";
 import ElementSelector from "./element-selector";
-import { ElemntStyleEditor } from "./element-style-editor";
 
 const LeftOptionLists: Option[] = [
     { icon: Move, value: ElementEnum.Move },
@@ -75,6 +76,7 @@ const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }
                 </div>
                 <CanvasStyleEditor />
                 <ElemntStyleEditor />
+                <ZoomController />
             </div>
         </div>
     );
