@@ -1,8 +1,9 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { Position, Size } from "@/types/canvas";
+import { AbsPosition, Delta, Position, Size } from "@/types/canvas";
 import {
+    CursorPosition,
     ElementEnum,
     ICanvasObject,
     ICanvasObjectWithId,
@@ -27,6 +28,15 @@ export class Pencil implements ICanvasObjectWithId {
         this.style = { ...(v.style ?? DefaultStyle) };
         this._parent = parent;
     }
+
+    select(cords: Partial<IObjectValue>) {}
+
+    unSelect() {}
+
+    getPosition() {
+        return CanvasHelper.getAbsolutePosition({ x: 0, y: 0 }, this._parent.Transform);
+    }
+
     points: [number, number][] = [];
     private _isSelected = false;
 
@@ -60,7 +70,7 @@ export class Pencil implements ICanvasObjectWithId {
         ctx.stroke();
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
         if (clearCanvas) {
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         }
@@ -149,7 +159,7 @@ export class Pencil implements ICanvasObjectWithId {
     set<T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) {
         console.log(key, value);
     }
-    resize(size: Size) {
-        console.log(size);
+    resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
+        // console.log(size);
     }
 }

@@ -169,8 +169,6 @@ export class Rectangle implements ICanvasObjectWithId {
         return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
     }
 
-    onSelect() {}
-
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
         const { dx, dy } = delta;
         console.log(dx, dy);
@@ -244,7 +242,6 @@ export class Rectangle implements ICanvasObjectWithId {
             case "r":
                 break;
         }
-        console.log(x, y, w, h, this.x, this.y, this.w, this.h, action);
         if (x >= this.x + this.w) {
             x = this.x + this.w;
         }

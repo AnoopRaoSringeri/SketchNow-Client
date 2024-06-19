@@ -1,8 +1,9 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { Position, Size } from "@/types/canvas";
+import { Delta, Position, Size } from "@/types/canvas";
 import {
+    CursorPosition,
     ElementEnum,
     ICanvasObject,
     ICanvasObjectWithId,
@@ -56,7 +57,19 @@ export class Line implements ICanvasObjectWithId {
         ctx.moveTo(this.x, this.y);
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+    select({ x = this.x, y = this.y }: Partial<IObjectValue>) {
+        this._isSelected = true;
+    }
+
+    unSelect() {
+        this._isSelected = false;
+    }
+
+    getPosition() {
+        return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
+    }
+
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
         if (clearCanvas) {
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         }
@@ -136,7 +149,7 @@ export class Line implements ICanvasObjectWithId {
     set<T extends keyof ICanvasObject>(key: T, value: ICanvasObject[T]) {
         console.log(key, value);
     }
-    resize(size: Size) {
-        console.log(size);
+    resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
+        console.log(cPos);
     }
 }

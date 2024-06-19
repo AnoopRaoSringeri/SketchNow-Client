@@ -1,8 +1,9 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle, GUTTER } from "@/lib/canvas-helpers";
-import { Position, Size } from "@/types/canvas";
+import { Delta, Position, Size } from "@/types/canvas";
 import {
+    CursorPosition,
     ElementEnum,
     ICanvasObjectWithId,
     IObjectStyle,
@@ -36,7 +37,7 @@ export class Square implements ICanvasObjectWithId {
         return this._isSelected;
     }
 
-    select({ x, y }: Position) {
+    select({ x = this.x, y = this.y }: Partial<IObjectValue>) {
         this._isSelected = true;
         if (this._parent.CanvasCopy) {
             const copyCtx = this._parent.CanvasCopy.getContext("2d");
@@ -94,7 +95,7 @@ export class Square implements ICanvasObjectWithId {
         ctx.fillRect(this.x, this.y, this.h, this.h);
     }
 
-    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, clearCanvas = true) {
+    update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
         const { h = this.h, w = this.h } = objectValue;
         const side = Math.min(h, w);
         CanvasHelper.applyStyles(ctx, this.style);
@@ -131,6 +132,104 @@ export class Square implements ICanvasObjectWithId {
         }
     }
 
+    resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
+        const { dx, dy } = delta;
+        console.log(dx, dy);
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
+        }
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
+        let w = dx;
+        let h = dy;
+        let y = this.y;
+        let x = this.x;
+        switch (cPos) {
+            case "tl":
+                x = x + w;
+                y = y + h;
+                if (h < 0) {
+                    h = Math.abs(Math.abs(h) + this.h);
+                } else {
+                    h = Math.abs(this.h - Math.abs(h));
+                }
+                if (w < 0) {
+                    w = Math.abs(Math.abs(w) + this.h);
+                } else {
+                    w = Math.abs(this.h - Math.abs(w));
+                }
+                break;
+            case "tr":
+                y = y + h;
+                if (h < 0) {
+                    h = Math.abs(this.h + Math.abs(h));
+                } else {
+                    h = Math.abs(Math.abs(h) - this.h);
+                }
+                if (w < 0) {
+                    w = this.h + w;
+                } else {
+                    w = Math.abs(this.h + Math.abs(w));
+                }
+                break;
+            case "bl":
+                x = x + w;
+                if (h < 0) {
+                    h = this.h - Math.abs(h);
+                } else {
+                    h = Math.abs(Math.abs(h) + this.h);
+                }
+                if (w < 0) {
+                    w = Math.abs(this.h + Math.abs(w));
+                } else {
+                    w = Math.abs(this.h - Math.abs(w));
+                }
+                break;
+            case "br":
+                if (h < 0) {
+                    h = h + this.h;
+                } else {
+                    h = Math.abs(this.h + Math.abs(h));
+                }
+                if (w < 0) {
+                    w = this.h + w;
+                } else {
+                    w = Math.abs(this.h + Math.abs(w));
+                }
+                break;
+            case "t":
+                break;
+            case "b":
+                break;
+            case "l":
+                break;
+            case "r":
+                break;
+        }
+        if (x >= this.x + this.h) {
+            x = this.x + this.h;
+        }
+        if (y >= this.y + this.h) {
+            y = this.y + this.h;
+        }
+        if (h < 0) {
+            y = y + h;
+            h = Math.abs(h);
+        }
+        if (w < 0) {
+            x = x + w;
+            w = Math.abs(w);
+        }
+        ctx.strokeRect(x, y, w, h);
+        ctx.fillRect(x, y, w, h);
+        this.select({ h, w, x, y });
+        if (action == "up") {
+            this.h = h;
+            this.h = w;
+            this.x = x;
+            this.y = y;
+        }
+    }
+
     getValues() {
         return {
             type: this.type,
@@ -144,10 +243,6 @@ export class Square implements ICanvasObjectWithId {
 
     getPosition() {
         return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
-    }
-
-    resize(size: Size) {
-        console.log(size);
     }
 
     toSVG(options: IToSVGOptions) {
