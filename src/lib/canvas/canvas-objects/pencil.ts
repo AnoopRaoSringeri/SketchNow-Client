@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { AbsPosition, Delta, Position, Size } from "@/types/canvas";
+import { Delta, Position } from "@/types/canvas";
 import {
     CursorPosition,
     ElementEnum,
@@ -29,7 +29,9 @@ export class Pencil implements ICanvasObjectWithId {
         this._parent = parent;
     }
 
-    select(cords: Partial<IObjectValue>) {}
+    select(cords: Partial<IObjectValue>) {
+        console.log(cords);
+    }
 
     unSelect() {}
 
@@ -160,6 +162,6 @@ export class Pencil implements ICanvasObjectWithId {
         console.log(key, value);
     }
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
-        // console.log(size);
+        console.log(action);
     }
 }

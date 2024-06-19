@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { Delta, Position, Size } from "@/types/canvas";
+import { Delta, Position } from "@/types/canvas";
 import {
     CursorPosition,
     ElementEnum,
@@ -57,7 +57,8 @@ export class Line implements ICanvasObjectWithId {
         ctx.moveTo(this.x, this.y);
     }
 
-    select({ x = this.x, y = this.y }: Partial<IObjectValue>) {
+    select(value: Partial<IObjectValue>) {
+        console.log(value);
         this._isSelected = true;
     }
 
@@ -150,6 +151,6 @@ export class Line implements ICanvasObjectWithId {
         console.log(key, value);
     }
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
-        console.log(cPos);
+        console.log(delta, cPos, action);
     }
 }

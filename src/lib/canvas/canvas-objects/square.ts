@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle, GUTTER } from "@/lib/canvas-helpers";
-import { Delta, Position, Size } from "@/types/canvas";
+import { Delta, Position } from "@/types/canvas";
 import {
     CursorPosition,
     ElementEnum,

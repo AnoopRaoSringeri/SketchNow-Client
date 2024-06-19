@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
-import { Delta, Position, Size } from "@/types/canvas";
+import { Delta, Position } from "@/types/canvas";
 import {
     CursorPosition,
     ElementEnum,
@@ -54,7 +54,8 @@ export class Circle implements ICanvasObjectWithId {
         ctx.closePath();
     }
 
-    select({ x = this.x, y = this.y }: Partial<IObjectValue>) {
+    select(value: Partial<IObjectValue>) {
+        console.log(value);
         this._isSelected = true;
     }
 
@@ -135,6 +136,6 @@ export class Circle implements ICanvasObjectWithId {
         console.log(key, value);
     }
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
-        console.log(delta);
+        console.log(delta, cPos, action);
     }
 }
