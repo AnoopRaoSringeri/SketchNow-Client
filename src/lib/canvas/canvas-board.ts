@@ -13,12 +13,15 @@ import {
     IObjectStyle,
     IToSVGOptions
 } from "@/types/custom-canvas";
+import { CanvasWorkerMessage } from "@/types/worker";
 
-import { CanvasHelper, DefaultStyle } from "../canvas-helpers";
+import { CANVAS_SCALING_MULTIPLIER, CanvasHelper, DefaultStyle, MIN_INTERVAL } from "../canvas-helpers";
 import { CavasObjectMap } from "./canvas-objects/object-mapping";
 import { EventManager } from "./event-handler";
 
+let CanvasWorker: Worker | null = null;
 export class CanvasBoard implements ICanvas {
+    private _lastTimestamp = 0;
     private _clicked = false;
     private _canvas: React.RefObject<HTMLCanvasElement>;
     private _canvasCopy: React.RefObject<HTMLCanvasElement>;
@@ -202,19 +205,19 @@ export class CanvasBoard implements ICanvas {
     }
 
     loadBoard(metadata: CanvasMetadata, { height, readonly, width, draw }: Partial<AdditionalCanvasOptions>) {
+        CanvasWorker = CanvasHelper.GetCanvasWorker();
+
         this.ReadOnly = readonly ?? false;
         this.Height = height ?? metadata.size.height;
         this.Width = width ?? metadata.size.width;
-        this._canvasTransform = metadata.tranform;
-        const context = this.Canvas.getContext("2d");
-        if (context) {
-            const objArray = metadata.elements.map((ele) => {
-                return CavasObjectMap[ele.type](ele, this);
-            });
-            this._elements = objArray;
-            if (draw) {
-                this.redrawBoard();
-            }
+        this._canvasTransform = metadata.transform;
+        this.Zoom = metadata.transform.a * CANVAS_SCALING_MULTIPLIER;
+        const objArray = metadata.elements.map((ele) => {
+            return CavasObjectMap[ele.type](ele, this);
+        });
+        this._elements = objArray;
+        if (draw) {
+            this.redrawBoard();
         }
     }
 
@@ -305,6 +308,7 @@ export class CanvasBoard implements ICanvas {
             CanvasHelper.clearCanvasArea(context, this._canvasTransform);
         }
         this._canvasTransform = CanvasHelper.GetDefaultTransForm();
+        this.Zoom = 100;
         this.redrawBoard();
     }
 
@@ -319,27 +323,55 @@ export class CanvasBoard implements ICanvas {
     }
 
     redrawBoard() {
-        if (this.CanvasCopy) {
-            const contextCopy = this.CanvasCopy.getContext("2d");
-            if (contextCopy) {
-                CanvasHelper.clearCanvasArea(contextCopy, this._canvasTransform);
-                contextCopy.resetTransform();
-                const { a, b, c, d, e, f } = this._canvasTransform;
-                contextCopy.transform(a, b, c, d, e, f);
-                contextCopy.restore();
+        window.requestAnimationFrame((timestamp) => {
+            if (timestamp - this._lastTimestamp >= MIN_INTERVAL) {
+                if (!CanvasWorker) {
+                    return;
+                }
+                if (this.CanvasCopy) {
+                    const contextCopy = this.CanvasCopy.getContext("2d");
+                    if (contextCopy) {
+                        CanvasHelper.clearCanvasArea(contextCopy, this._canvasTransform);
+                        contextCopy.resetTransform();
+                        contextCopy.save();
+                        const { a, b, c, d, e, f } = this._canvasTransform;
+                        contextCopy.transform(a, b, c, d, e, f);
+                        contextCopy.restore();
+                    }
+                }
+                const context = this.Canvas.getContext("2d");
+                if (context) {
+                    CanvasHelper.clearCanvasArea(context, this._canvasTransform);
+                    context.resetTransform();
+                    context.save();
+                    const { a, b, c, d, e, f } = this._canvasTransform;
+                    context.transform(a, b, c, d, e, f);
+                    this.Elements.forEach((ele) => {
+                        ele.draw(context);
+                    });
+                    context.restore();
+                }
+                CanvasWorker.onmessage = function (e) {
+                    console.log(e.data);
+                };
+
+                // this.RunInWorker({
+                //     type: "redraw",
+                //     data: {
+                //         metadata: this.toJSON()
+                //     }
+                // });
+                // CanvasWorker.onmessage = (e) => {
+                //     const btm = e.data;
+                //     const ctx = this.Canvas.getContext("bitmaprenderer");
+                //     if (ctx) {
+                //         ctx.transferFromImageBitmap(btm);
+                //     }
+                //     console.log(ctx);
+                // };
+                this._lastTimestamp = timestamp;
             }
-        }
-        const context = this.Canvas.getContext("2d");
-        if (context) {
-            CanvasHelper.clearCanvasArea(context, this._canvasTransform);
-            context.resetTransform();
-            const { a, b, c, d, e, f } = this._canvasTransform;
-            context.transform(a, b, c, d, e, f);
-            this.Elements.forEach((ele) => {
-                ele.draw(context);
-            });
-            context.restore();
-        }
+        });
     }
 
     dispose() {
@@ -356,7 +388,7 @@ export class CanvasBoard implements ICanvas {
         return {
             elements: [...this.Elements.map((ele) => ele.getValues())],
             size: { height: this.Height, width: this.Width },
-            tranform: this._canvasTransform
+            transform: this._canvasTransform
         };
     }
 
@@ -396,4 +428,8 @@ export class CanvasBoard implements ICanvas {
     onTouchEnd(e: TouchEvent) {
         this.EventManager.onTouchEnd(e);
     }
+
+    RunInWorker = (message: CanvasWorkerMessage) => {
+        CanvasWorker!.postMessage(message);
+    };
 }

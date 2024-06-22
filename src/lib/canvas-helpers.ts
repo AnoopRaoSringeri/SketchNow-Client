@@ -18,6 +18,7 @@ export const GUTTER = 2;
 export const CANVAS_SCALING_FACTOR = 0.0001;
 export const CANVAS_SCALING_LIMIT = 0.1;
 export const CANVAS_SCALING_MULTIPLIER = 100;
+export const MIN_INTERVAL = 1;
 
 export const DEFAULT_TRANSFORM: ICanvasTransform = {
     a: 1,
@@ -27,7 +28,7 @@ export const DEFAULT_TRANSFORM: ICanvasTransform = {
     e: 0,
     f: 0
 };
-
+let CanvasWorker: Worker | null = null;
 export class CanvasHelper {
     static getHeightRatio(canvasHeight: number, newHeight: number) {
         return newHeight / canvasHeight;
@@ -115,7 +116,7 @@ export class CanvasHelper {
         );
     }
 
-    static applyStyles(ctx: CanvasRenderingContext2D, style: IObjectStyle) {
+    static applyStyles(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, style: IObjectStyle) {
         ctx.save();
         const { fillColor, strokeStyle, strokeWidth } = style;
         ctx.fillStyle = fillColor;
@@ -127,21 +128,59 @@ export class CanvasHelper {
         return `fill: ${style.fillColor}; stroke: ${style.strokeStyle}; stroke-width: ${style.strokeWidth * Math.max(height, width)}px;`;
     }
 
-    static getMousePosition({ x, y }: Position, { e, f }: ICanvasTransform) {
-        return { x, y, ax: x - e, ay: y - f };
+    static getMousePosition({ x, y }: Position, { e, f, a }: ICanvasTransform) {
+        return { x: x, y: y, ax: (x - e) / a, ay: (y - f) / a };
     }
 
-    static getAbsolutePosition({ x, y }: Position, { e, f }: ICanvasTransform) {
-        return { x, y, ax: x + e, ay: y + f };
+    static getCurrentMousePosition(event: MouseEvent, { e, f, a }: ICanvasTransform) {
+        const { offsetX: x, offsetY: y } = event;
+        return { offsetX: (x - e) / a, offsetY: (y - f) / a };
     }
 
-    static clearCanvasArea(ctx: CanvasRenderingContext2D, { a, e, f }: ICanvasTransform) {
+    static getAbsolutePosition({ x, y }: Position, { e, f, a }: ICanvasTransform) {
+        return { x, y, ax: (x + e) * a, ay: (y + f) * a };
+    }
+
+    static clearCanvasArea(
+        ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+        { a, e, f }: ICanvasTransform
+    ) {
         const xf = (Math.abs(e) * (a + 1)) / a;
         const yf = (Math.abs(f) * (a + 1)) / a;
-        ctx.clearRect(-xf, -yf, window.innerWidth + xf, window.innerHeight + yf);
+        ctx.clearRect(-xf, -yf, window.innerWidth + xf * 2, window.innerHeight + yf * 2);
+    }
+
+    static clearOffscreenCanvasArea(
+        ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+        { a, e, f }: ICanvasTransform,
+        size: Size
+    ) {
+        const xf = (Math.abs(e) * (a + 1)) / a;
+        const yf = (Math.abs(f) * (a + 1)) / a;
+        ctx.clearRect(-xf, -yf, size.width + xf * 2, size.height + yf * 2);
     }
 
     static GetDefaultTransForm() {
         return { ...DEFAULT_TRANSFORM };
+    }
+
+    static GetCanvasWorker() {
+        if (!CanvasWorker) {
+            CanvasWorker = new Worker(new URL("../workers/canvas-worker", import.meta.url), {
+                type: "module",
+                name: "canvas-worker"
+            });
+        }
+        return CanvasWorker;
+    }
+
+    static getCanvasBoundary(
+        ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+        { a, e, f }: ICanvasTransform,
+        size: Size
+    ) {
+        const xf = (Math.abs(e) * (a + 1)) / a;
+        const yf = (Math.abs(f) * (a + 1)) / a;
+        return { x: -xf, y: -yf, w: size.width + xf * 2, h: size.height + yf * 2 };
     }
 }

@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "target": "ES2016",
+        "target": "ESNext",
         "useDefineForClassFields": true,
-        "lib": ["ES2020", "DOM", "DOM.Iterable", "ES2021"],
-        "module": "ES2022",
+        "lib": ["ESNext", "DOM", "DOM.Iterable", "webworker"],
+        "module": "ESNext",
         "skipLibCheck": true,
-
+        // vite
+        "types": ["vite/client"],
         /* Bundler mode */
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,

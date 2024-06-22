@@ -18,7 +18,6 @@ export class EventManager {
     }
 
     onMouseDown(e: MouseEvent) {
-        console.log(e);
         if (this.Board.Clicked) {
             return;
         }
@@ -36,13 +35,13 @@ export class EventManager {
         ) {
             this.Board.unSelectElements();
         }
-        const { offsetX, offsetY } = e;
+        const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
         this.Board.PointerOrigin = { x: offsetX, y: offsetY };
-        const { ax, ay } = CanvasHelper.getMousePosition(this.Board.PointerOrigin, this.Board.Transform);
         if (this.Board.ElementType == ElementEnum.Move) {
             if (e.detail == 1) {
                 if (e.ctrlKey) {
                     this.Board._currentCanvasAction = CanvasActionEnum.Pan;
+                    this.Board.PointerOrigin = { x: e.offsetX, y: e.offsetY };
                 } else if (this.Board.HoveredObject) {
                     this.Board.Elements = this.Board.Elements.filter((e) => e.id != this.Board.HoveredObject!.id);
                     this.Board.redrawBoard();
@@ -62,11 +61,11 @@ export class EventManager {
         } else {
             const newObj = CavasObjectMap[this.Board.ElementType](
                 {
-                    x: ax,
-                    y: ay,
+                    x: offsetX,
+                    y: offsetY,
                     h: 0,
                     w: 0,
-                    points: [[ax, ay]],
+                    points: [[offsetX, offsetY]],
                     id: uuid(),
                     style: this.Board.Style
                 },
@@ -85,23 +84,16 @@ export class EventManager {
         if (!context) {
             return;
         }
-        const { offsetX, offsetY } = e;
+        const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
         if (this.Board.PointerOrigin) {
             const { x, y } = CanvasHelper.getMousePosition(this.Board.PointerOrigin, this.Board.Transform);
             if (this.Board.ElementType == ElementEnum.Move) {
                 if (this.Board._currentCanvasAction == CanvasActionEnum.Pan) {
-                    const ctx = this.Board.Canvas.getContext("2d");
-                    if (!ctx) {
-                        return;
-                    }
+                    const { offsetX, offsetY } = e;
                     const dx = offsetX - x;
                     const dy = offsetY - y;
                     this.Board.Transform.e += dx;
                     this.Board.Transform.f += dy;
-                    CanvasHelper.clearCanvasArea(ctx, this.Board.Transform);
-                    ctx.resetTransform();
-                    const { a, b, c, d, e, f } = this.Board.Transform;
-                    ctx.transform(a, b, c, d, e, f);
                     this.Board.PointerOrigin = { x: offsetX, y: offsetY };
                     this.Board.redrawBoard();
                 } else if (this.Board._currentCanvasAction == CanvasActionEnum.Resize && this.Board.CursorPosition) {
@@ -170,7 +162,7 @@ export class EventManager {
         if (!context) {
             return;
         }
-        const { offsetX, offsetY } = e;
+        const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
         if (this.Board.ActiveObjects.length != 0) {
             if (this.Board.ActiveObjects.length != 0 && this.Board.PointerOrigin) {
                 const { x, y } = CanvasHelper.getMousePosition(this.Board.PointerOrigin, this.Board.Transform);
