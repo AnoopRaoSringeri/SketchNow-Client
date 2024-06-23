@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Route, Routes } from "react-router";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
 import { Loader } from "@/components/ui/loader";
 import { useLayout } from "@/hooks/layout-provider";
@@ -13,7 +13,7 @@ import SketchList from "@/pages/canvas/sketches";
 function AppContainer() {
     const { element } = useLayout();
     return (
-        <BrowserRouter>
+        <HashRouter>
             <Routes>
                 <Route path="/" element={<Auth />}>
                     <Route
@@ -52,7 +52,7 @@ function AppContainer() {
                     />
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 
