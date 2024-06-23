@@ -171,7 +171,6 @@ export class Rectangle implements ICanvasObjectWithId {
 
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
         const { dx, dy } = delta;
-        console.log(dx, dy);
         if (action == "down") {
             CanvasHelper.applyStyles(ctx, this.style);
         }

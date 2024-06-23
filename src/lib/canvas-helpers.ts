@@ -16,8 +16,10 @@ const HOVER_OFFSET = 10;
 export const GUTTER = 2;
 
 export const CANVAS_SCALING_FACTOR = 0.0001;
-export const CANVAS_SCALING_LIMIT = 0.1;
+export const CANVAS_SCALING_LIMIT = 0.00001;
 export const CANVAS_SCALING_MULTIPLIER = 100;
+export const CANVAS_ZOOM_IN_OUT_FACTOR = 0.05;
+
 export const MIN_INTERVAL = 1;
 
 export const DEFAULT_TRANSFORM: ICanvasTransform = {
@@ -42,13 +44,13 @@ export class CanvasHelper {
         return { height: nSize.height / cSize.height, width: nSize.width / cSize.width };
     }
 
-    static isUnderMouse(mousePosition: Position, values: Partial<IObjectValue>, transform: ICanvasTransform) {
+    static isUnderMouse(mousePosition: Position, values: Partial<IObjectValue>) {
         const { x, y } = mousePosition;
         const { x: cx = 0, y: cy = 0, h = 0, w = 0, r = 0, points = [], style = DefaultStyle } = values;
         const { strokeWidth } = style;
         const wFactor = strokeWidth / 2;
-        const ucx = cx + transform.e + -wFactor;
-        const ucy = cy + transform.f + -wFactor;
+        const ucx = cx + -wFactor;
+        const ucy = cy + -wFactor;
         const uh = h + wFactor * 2;
         const uw = w + wFactor * 2;
         const ur = r + wFactor;
@@ -69,17 +71,13 @@ export class CanvasHelper {
         );
     }
 
-    static getCursorPosition(
-        mousePosition: Position,
-        values: CanvasObject,
-        transform: ICanvasTransform
-    ): CursorPosition {
+    static getCursorPosition(mousePosition: Position, values: CanvasObject): CursorPosition {
         const { x, y } = mousePosition;
         const { x: cx = 0, y: cy = 0, h = 0, w = 0, style = DefaultStyle } = values;
         const { strokeWidth } = style;
         const wFactor = strokeWidth / 2;
-        const ucx = cx + transform.e + -wFactor;
-        const ucy = cy + transform.f + -wFactor;
+        const ucx = cx + -wFactor;
+        const ucy = cy + -wFactor;
         const uh = h + ucy + wFactor * 2;
         const uw = w + ucx + wFactor * 2;
         return x >= ucx - HOVER_OFFSET && x <= ucx + HOVER_OFFSET && y >= ucy - HOVER_OFFSET && y <= ucy + HOVER_OFFSET
@@ -108,11 +106,10 @@ export class CanvasHelper {
         }
     }
 
-    static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[], transform: ICanvasTransform) {
+    static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[]) {
         return elements.find(
             (e) =>
-                this.isUnderMouse(mouseCords, e.getValues(), transform) ||
-                this.getCursorPosition(mouseCords, e.getValues(), transform) != "m"
+                this.isUnderMouse(mouseCords, e.getValues()) || this.getCursorPosition(mouseCords, e.getValues()) != "m"
         );
     }
 
@@ -128,17 +125,13 @@ export class CanvasHelper {
         return `fill: ${style.fillColor}; stroke: ${style.strokeStyle}; stroke-width: ${style.strokeWidth * Math.max(height, width)}px;`;
     }
 
-    static getMousePosition({ x, y }: Position, { e, f, a }: ICanvasTransform) {
-        return { x: x, y: y, ax: (x - e) / a, ay: (y - f) / a };
-    }
-
     static getCurrentMousePosition(event: MouseEvent, { e, f, a }: ICanvasTransform) {
         const { offsetX: x, offsetY: y } = event;
         return { offsetX: (x - e) / a, offsetY: (y - f) / a };
     }
 
     static getAbsolutePosition({ x, y }: Position, { e, f, a }: ICanvasTransform) {
-        return { x, y, ax: (x + e) * a, ay: (y + f) * a };
+        return { x, y, ax: x * a + e, ay: y * a + f };
     }
 
     static clearCanvasArea(

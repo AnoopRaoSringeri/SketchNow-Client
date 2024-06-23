@@ -86,7 +86,7 @@ export class EventManager {
         }
         const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
         if (this.Board.PointerOrigin) {
-            const { x, y } = CanvasHelper.getMousePosition(this.Board.PointerOrigin, this.Board.Transform);
+            const { x, y } = this.Board.PointerOrigin;
             if (this.Board.ElementType == ElementEnum.Move) {
                 if (this.Board._currentCanvasAction == CanvasActionEnum.Pan) {
                     const { offsetX, offsetY } = e;
@@ -123,17 +123,9 @@ export class EventManager {
                 });
             }
         } else if (this.Board.ElementType == ElementEnum.Move) {
-            const ele = CanvasHelper.hoveredElement(
-                { x: offsetX, y: offsetY },
-                this.Board.Elements,
-                this.Board.Transform
-            );
+            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this.Board.Elements);
             if (ele) {
-                this.Board.CursorPosition = CanvasHelper.getCursorPosition(
-                    { x: offsetX, y: offsetY },
-                    ele.getValues(),
-                    this.Board.Transform
-                );
+                this.Board.CursorPosition = CanvasHelper.getCursorPosition({ x: offsetX, y: offsetY }, ele.getValues());
                 if (this.Board.CursorPosition == "m") {
                     this.Board._currentCanvasAction = CanvasActionEnum.Move;
                 } else {
@@ -165,7 +157,7 @@ export class EventManager {
         const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
         if (this.Board.ActiveObjects.length != 0) {
             if (this.Board.ActiveObjects.length != 0 && this.Board.PointerOrigin) {
-                const { x, y } = CanvasHelper.getMousePosition(this.Board.PointerOrigin, this.Board.Transform);
+                const { x, y } = this.Board.PointerOrigin;
                 if (this.Board.ElementType == ElementEnum.Move) {
                     if (this.Board._currentCanvasAction == CanvasActionEnum.Resize) {
                         this.Board.ActiveObjects.forEach((ao) => {
@@ -218,20 +210,14 @@ export class EventManager {
             const newScale = CANVAS_SCALING_LIMIT;
             const newX = localX - (localX - oldX) * (newScale / previousScale);
             const newY = localY - (localY - oldY) * (newScale / previousScale);
-            this.Board.Transform.e = newX;
-            this.Board.Transform.f = newY;
-            this.Board.Transform.a = newScale;
-            this.Board.Transform.d = newScale;
+            this.Board.Transform = { ...this.Board.Transform, e: newX, f: newY, a: newScale, d: newScale };
             this.Board.Zoom = newScale * CANVAS_SCALING_MULTIPLIER;
             return;
         }
         if (isNaN(newX) || isNaN(newY) || !isFinite(newX) || !isFinite(newY)) {
             return;
         }
-        this.Board.Transform.e = newX;
-        this.Board.Transform.f = newY;
-        this.Board.Transform.a = newScale;
-        this.Board.Transform.d = newScale;
+        this.Board.Transform = { ...this.Board.Transform, e: newX, f: newY, a: newScale, d: newScale };
         this.Board.Zoom = newScale * CANVAS_SCALING_MULTIPLIER;
         this.Board.redrawBoard();
     }
@@ -253,11 +239,7 @@ export class EventManager {
         const { clientX: offsetX, clientY: offsetY } = e.touches[0];
         this.Board.PointerOrigin = { x: offsetX, y: offsetY };
         if (this.Board.ElementType == ElementEnum.Move) {
-            const ele = CanvasHelper.hoveredElement(
-                { x: offsetX, y: offsetY },
-                this.Board.Elements,
-                this.Board.Transform
-            );
+            const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this.Board.Elements);
             if (ele) {
                 this.Board.Elements = this.Board.Elements.filter((e) => e.id != ele.id);
                 this.Board.redrawBoard();

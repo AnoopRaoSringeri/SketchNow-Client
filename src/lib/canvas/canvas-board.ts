@@ -15,7 +15,14 @@ import {
 } from "@/types/custom-canvas";
 import { CanvasWorkerMessage } from "@/types/worker";
 
-import { CANVAS_SCALING_MULTIPLIER, CanvasHelper, DefaultStyle, MIN_INTERVAL } from "../canvas-helpers";
+import {
+    CANVAS_SCALING_LIMIT,
+    CANVAS_SCALING_MULTIPLIER,
+    CANVAS_ZOOM_IN_OUT_FACTOR,
+    CanvasHelper,
+    DefaultStyle,
+    MIN_INTERVAL
+} from "../canvas-helpers";
 import { CavasObjectMap } from "./canvas-objects/object-mapping";
 import { EventManager } from "./event-handler";
 
@@ -27,20 +34,18 @@ export class CanvasBoard implements ICanvas {
     private _canvasCopy: React.RefObject<HTMLCanvasElement>;
     private _elements: ICanvasObjectWithId[] = [];
     private _pointerOrigin: Position | null = null;
-    _zoom = 100;
     private _readOnly: boolean = false;
+    private _cursorPosition: CursorPosition | null = null;
 
     private _activeObjects: ICanvasObjectWithId[] = [];
     private _hoveredObject: ICanvasObjectWithId | null = null;
-    _selectedElements: ICanvasObjectWithId[] = [];
-
-    private _canvasTransform: ICanvasTransform = CanvasHelper.GetDefaultTransForm();
 
     _elementType: ElementEnum = ElementEnum.Move;
     _currentCanvasAction: CanvasActionEnum = CanvasActionEnum.Select;
-    private _cursorPosition: CursorPosition | null = null;
-
+    _zoom = 100;
     _style: IObjectStyle = DefaultStyle;
+    _selectedElements: ICanvasObjectWithId[] = [];
+    _canvasTransform: ICanvasTransform = CanvasHelper.GetDefaultTransForm();
 
     private EventManager: EventManager;
 
@@ -57,7 +62,9 @@ export class CanvasBoard implements ICanvas {
             _selectedElements: observable,
             SelectedElements: computed,
             _zoom: observable,
-            Zoom: computed
+            Zoom: computed,
+            _canvasTransform: observable,
+            Transform: computed
         });
     }
 
@@ -148,6 +155,10 @@ export class CanvasBoard implements ICanvas {
         return this._canvasTransform;
     }
 
+    set Transform(transform: ICanvasTransform) {
+        this._canvasTransform = transform;
+    }
+
     get ActiveObjects() {
         return this._activeObjects;
     }
@@ -210,7 +221,7 @@ export class CanvasBoard implements ICanvas {
         this.ReadOnly = readonly ?? false;
         this.Height = height ?? metadata.size.height;
         this.Width = width ?? metadata.size.width;
-        this._canvasTransform = metadata.transform;
+        this.Transform = metadata.transform;
         this.Zoom = metadata.transform.a * CANVAS_SCALING_MULTIPLIER;
         const objArray = metadata.elements.map((ele) => {
             return CavasObjectMap[ele.type](ele, this);
@@ -222,6 +233,8 @@ export class CanvasBoard implements ICanvas {
     }
 
     createBoard({ height = window.innerHeight, width = window.innerWidth }: Partial<AdditionalCanvasOptions>) {
+        CanvasWorker = CanvasHelper.GetCanvasWorker();
+
         this.Height = height;
         this.Width = width;
     }
@@ -296,18 +309,59 @@ export class CanvasBoard implements ICanvas {
         }
     }
 
-    fitToView() {
+    zoomIn() {
         if (this.CanvasCopy) {
             const contextCopy = this.CanvasCopy.getContext("2d");
             if (contextCopy) {
-                CanvasHelper.clearCanvasArea(contextCopy, this._canvasTransform);
+                CanvasHelper.clearCanvasArea(contextCopy, this.Transform);
             }
         }
         const context = this.Canvas.getContext("2d");
         if (context) {
-            CanvasHelper.clearCanvasArea(context, this._canvasTransform);
+            CanvasHelper.clearCanvasArea(context, this.Transform);
         }
-        this._canvasTransform = CanvasHelper.GetDefaultTransForm();
+        this.Transform = {
+            ...this.Transform,
+            a: this.Transform.a + CANVAS_ZOOM_IN_OUT_FACTOR,
+            d: this.Transform.d + CANVAS_ZOOM_IN_OUT_FACTOR
+        };
+        this.Zoom = this.Transform.a * CANVAS_SCALING_MULTIPLIER;
+        this.redrawBoard();
+    }
+
+    zoomOut() {
+        if (this.CanvasCopy) {
+            const contextCopy = this.CanvasCopy.getContext("2d");
+            if (contextCopy) {
+                CanvasHelper.clearCanvasArea(contextCopy, this.Transform);
+            }
+        }
+        const context = this.Canvas.getContext("2d");
+        if (context) {
+            CanvasHelper.clearCanvasArea(context, this.Transform);
+        }
+        const newScale = Math.max(CANVAS_SCALING_LIMIT, this.Transform.a - CANVAS_ZOOM_IN_OUT_FACTOR);
+        this.Transform = {
+            ...this.Transform,
+            a: newScale,
+            d: newScale
+        };
+        this.Zoom = this.Transform.a * CANVAS_SCALING_MULTIPLIER;
+        this.redrawBoard();
+    }
+
+    fitToView() {
+        if (this.CanvasCopy) {
+            const contextCopy = this.CanvasCopy.getContext("2d");
+            if (contextCopy) {
+                CanvasHelper.clearCanvasArea(contextCopy, this.Transform);
+            }
+        }
+        const context = this.Canvas.getContext("2d");
+        if (context) {
+            CanvasHelper.clearCanvasArea(context, this.Transform);
+        }
+        this.Transform = CanvasHelper.GetDefaultTransForm();
         this.Zoom = 100;
         this.redrawBoard();
     }
@@ -331,20 +385,20 @@ export class CanvasBoard implements ICanvas {
                 if (this.CanvasCopy) {
                     const contextCopy = this.CanvasCopy.getContext("2d");
                     if (contextCopy) {
-                        CanvasHelper.clearCanvasArea(contextCopy, this._canvasTransform);
+                        CanvasHelper.clearCanvasArea(contextCopy, this.Transform);
                         contextCopy.resetTransform();
-                        contextCopy.save();
-                        const { a, b, c, d, e, f } = this._canvasTransform;
+                        const { a, b, c, d, e, f } = this.Transform;
                         contextCopy.transform(a, b, c, d, e, f);
-                        contextCopy.restore();
+                        this.ActiveObjects.forEach((ele) => {
+                            ele.draw(contextCopy);
+                        });
                     }
                 }
                 const context = this.Canvas.getContext("2d");
                 if (context) {
-                    CanvasHelper.clearCanvasArea(context, this._canvasTransform);
+                    CanvasHelper.clearCanvasArea(context, this.Transform);
                     context.resetTransform();
-                    context.save();
-                    const { a, b, c, d, e, f } = this._canvasTransform;
+                    const { a, b, c, d, e, f } = this.Transform;
                     context.transform(a, b, c, d, e, f);
                     this.Elements.forEach((ele) => {
                         ele.draw(context);
@@ -381,14 +435,14 @@ export class CanvasBoard implements ICanvas {
         this.ReadOnly = false;
         this._hoveredObject = null;
         this._currentCanvasAction = CanvasActionEnum.Select;
-        this._canvasTransform = CanvasHelper.GetDefaultTransForm();
+        this.Transform = CanvasHelper.GetDefaultTransForm();
     }
 
     toJSON(): CanvasMetadata {
         return {
             elements: [...this.Elements.map((ele) => ele.getValues())],
             size: { height: this.Height, width: this.Width },
-            transform: this._canvasTransform
+            transform: this.Transform
         };
     }
 

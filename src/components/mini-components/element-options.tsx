@@ -25,7 +25,7 @@ export const ElementOptions = observer(function ElementOptions() {
     }
 
     return (
-        <div className="absolute z-[100] flex " style={{ top: ay - 30, left: ax + w - 68 }}>
+        <div className="absolute z-[100] flex " style={{ top: ay - 30, left: ax + w * canvasBoard.Transform.a - 68 }}>
             <Button size="xs" variant="ghost" onClick={copyElement}>
                 <Copy size={20} />
             </Button>
