@@ -14,7 +14,7 @@ export const ElementOptions = observer(function ElementOptions() {
         return <></>;
     }
     const { ax, ay } = element.getPosition();
-    const { w = 0 } = element;
+    const { w = 0 } = element.getValues();
 
     function removeElement() {
         canvasBoard.removeElement(element.id);

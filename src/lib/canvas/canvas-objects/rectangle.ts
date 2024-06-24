@@ -153,22 +153,6 @@ export class Rectangle implements ICanvasObjectWithId {
         }
     }
 
-    getValues() {
-        return {
-            type: this.type,
-            id: this.id,
-            h: this.h,
-            w: this.w,
-            x: this.x,
-            y: this.y,
-            style: this.style
-        };
-    }
-
-    getPosition() {
-        return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
-    }
-
     resize(ctx: CanvasRenderingContext2D, delta: Delta, cPos: CursorPosition, action: MouseAction) {
         const { dx, dy } = delta;
         if (action == "down") {
@@ -264,6 +248,22 @@ export class Rectangle implements ICanvasObjectWithId {
             this.x = x;
             this.y = y;
         }
+    }
+
+    getValues() {
+        return {
+            type: this.type,
+            id: this.id,
+            h: this.h,
+            w: this.w,
+            x: this.x,
+            y: this.y,
+            style: this.style
+        };
+    }
+
+    getPosition() {
+        return CanvasHelper.getAbsolutePosition({ x: this.x, y: this.y }, this._parent.Transform);
     }
 
     toSVG(options: IToSVGOptions) {

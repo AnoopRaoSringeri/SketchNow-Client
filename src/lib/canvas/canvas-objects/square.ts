@@ -31,13 +31,14 @@ export class Square implements ICanvasObjectWithId {
     x = 0;
     y = 0;
     h = 0;
+
     private _isSelected = false;
 
     get IsSelected() {
         return this._isSelected;
     }
 
-    select({ x = this.x, y = this.y }: Partial<IObjectValue>) {
+    select({ x = this.x, y = this.y, h = this.h, w = this.h }: Partial<IObjectValue>) {
         this._isSelected = true;
         if (this._parent.CanvasCopy) {
             const copyCtx = this._parent.CanvasCopy.getContext("2d");
@@ -45,8 +46,8 @@ export class Square implements ICanvasObjectWithId {
                 copyCtx.save();
                 copyCtx.strokeStyle = "#00ffff";
                 copyCtx.fillStyle = "#00ffff";
-                copyCtx.lineWidth = 1;
-                copyCtx.strokeRect(x - GUTTER, y - GUTTER, this.h + GUTTER * 2, this.h + GUTTER * 2);
+                copyCtx.lineWidth = 0.5;
+                copyCtx.strokeRect(x - GUTTER, y - GUTTER, w + GUTTER * 2, h + GUTTER * 2);
 
                 copyCtx.beginPath();
                 copyCtx.moveTo(x, y);
@@ -55,20 +56,20 @@ export class Square implements ICanvasObjectWithId {
                 copyCtx.fill();
 
                 copyCtx.beginPath();
-                copyCtx.moveTo(x, y + this.h);
-                copyCtx.arc(x, y + this.h, 4, 0, 2 * Math.PI);
+                copyCtx.moveTo(x, y + h);
+                copyCtx.arc(x, y + h, 4, 0, 2 * Math.PI);
                 copyCtx.stroke();
                 copyCtx.fill();
 
                 copyCtx.beginPath();
-                copyCtx.moveTo(x + this.h, y);
-                copyCtx.arc(x + this.h, y, 4, 0, 2 * Math.PI);
+                copyCtx.moveTo(x + w, y);
+                copyCtx.arc(x + w, y, 4, 0, 2 * Math.PI);
                 copyCtx.stroke();
                 copyCtx.fill();
 
                 copyCtx.beginPath();
-                copyCtx.moveTo(x + this.h, y + this.h);
-                copyCtx.arc(x + this.h, y + this.h, 4, 0, 2 * Math.PI);
+                copyCtx.moveTo(x + w, y + h);
+                copyCtx.arc(x + w, y + h, 4, 0, 2 * Math.PI);
                 copyCtx.stroke();
                 copyCtx.fill();
 
@@ -93,24 +94,39 @@ export class Square implements ICanvasObjectWithId {
         CanvasHelper.applyStyles(ctx, this.style);
         ctx.strokeRect(this.x, this.y, this.h, this.h);
         ctx.fillRect(this.x, this.y, this.h, this.h);
+        ctx.closePath();
     }
 
     update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
-        const { h = this.h, w = this.h } = objectValue;
-        const side = Math.min(h, w);
-        CanvasHelper.applyStyles(ctx, this.style);
-        if (clearCanvas) {
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        let { h = this.h, w = this.h, x = this.x, y = this.y } = objectValue;
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
         }
-        ctx.strokeRect(this.x, this.y, side, side);
-        ctx.fillRect(this.x, this.y, side, side);
-        this.h = side;
+        if (clearCanvas) {
+            CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
+        }
+        if (h < 0) {
+            y = y + h;
+            h = Math.abs(h);
+        }
+        if (w < 0) {
+            x = x + w;
+            w = Math.abs(w);
+        }
+        const side = Math.min(h, w);
+        ctx.strokeRect(x, y, side, side);
+        ctx.fillRect(x, y, side, side);
+        if (action == "up") {
+            this.h = side;
+            this.x = x;
+            this.y = y;
+        }
     }
 
     updateStyle<T extends keyof IObjectStyle>(ctx: CanvasRenderingContext2D, key: T, value: IObjectStyle[T]) {
         this.style[key] = value;
         CanvasHelper.applyStyles(ctx, this.style);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         ctx.strokeRect(this.x, this.y, this.h, this.h);
         ctx.fillRect(this.x, this.y, this.h, this.h);
     }
@@ -120,6 +136,7 @@ export class Square implements ICanvasObjectWithId {
         if (action == "down") {
             CanvasHelper.applyStyles(ctx, this.style);
         }
+        CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         const offsetX = x + this.x;
         const offsetY = y + this.y;
@@ -219,12 +236,12 @@ export class Square implements ICanvasObjectWithId {
             x = x + w;
             w = Math.abs(w);
         }
-        ctx.strokeRect(x, y, w, h);
-        ctx.fillRect(x, y, w, h);
-        this.select({ h, w, x, y });
+        const side = Math.min(w, h);
+        ctx.strokeRect(x, y, side, side);
+        ctx.fillRect(x, y, side, side);
+        this.select({ h: side, w: side, x, y });
         if (action == "up") {
-            this.h = h;
-            this.h = w;
+            this.h = side;
             this.x = x;
             this.y = y;
         }
@@ -235,6 +252,7 @@ export class Square implements ICanvasObjectWithId {
             type: this.type,
             id: this.id,
             h: this.h,
+            w: this.h,
             x: this.x,
             y: this.y,
             style: this.style

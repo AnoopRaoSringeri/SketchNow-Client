@@ -74,23 +74,34 @@ export class Pencil implements ICanvasObjectWithId {
 
     update(ctx: CanvasRenderingContext2D, objectValue: Partial<IObjectValue>, action: MouseAction, clearCanvas = true) {
         if (clearCanvas) {
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            CanvasHelper.clearCanvasArea(ctx, this._parent.Transform);
         }
-        const { points = this.points } = objectValue;
-        ctx.beginPath();
-        if (this.points.length > 0) {
-            this.points.forEach((p, i) => {
-                const [px, py] = p;
-                if (i == 0) {
-                    ctx.moveTo(px, py);
-                } else {
-                    ctx.lineTo(px, py);
-                }
-            });
+        if (action == "down") {
+            CanvasHelper.applyStyles(ctx, this.style);
+        }
+        // const { points = this.points } = objectValue;
+        // if (this.points.length > 0) {
+        //     this.points.forEach((p, i) => {
+        //         const [px, py] = p;
+        //         if (i == 0) {
+        //             ctx.moveTo(px, py);
+        //         } else {
+        //             ctx.lineTo(px, py);
+        //         }
+        //     });
+        //     ctx.stroke();
+        // }
+        // this.points.push(points[0]);
+        const { points = [] } = objectValue;
+        if (points.length > 0) {
+            const [prevX, prevY] = this.points[this.points.length - 1];
+            const [x, y] = points[0];
+            ctx.lineTo(x, y);
             ctx.stroke();
+            if (prevX != x || prevY != y) {
+                this.points.push([x, y]);
+            }
         }
-        ctx.closePath();
-        this.points = points;
     }
 
     move(ctx: CanvasRenderingContext2D, position: Position, action: MouseAction) {

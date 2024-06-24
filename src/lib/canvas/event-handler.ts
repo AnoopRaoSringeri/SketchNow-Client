@@ -125,7 +125,11 @@ export class EventManager {
         } else if (this.Board.ElementType == ElementEnum.Move) {
             const ele = CanvasHelper.hoveredElement({ x: offsetX, y: offsetY }, this.Board.Elements);
             if (ele) {
-                this.Board.CursorPosition = CanvasHelper.getCursorPosition({ x: offsetX, y: offsetY }, ele.getValues());
+                this.Board.CursorPosition = CanvasHelper.getCursorPosition(
+                    { x: offsetX, y: offsetY },
+                    ele.getValues(),
+                    ele.type
+                );
                 if (this.Board.CursorPosition == "m") {
                     this.Board._currentCanvasAction = CanvasActionEnum.Move;
                 } else {

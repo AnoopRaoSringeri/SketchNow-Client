@@ -2,6 +2,7 @@ import { Position, Size } from "@/types/canvas";
 import {
     CanvasObject,
     CursorPosition,
+    ElementEnum,
     ICanvasObjectWithId,
     ICanvasTransform,
     IObjectStyle,
@@ -68,10 +69,11 @@ export class CanvasHelper {
             ) != null ||
             // (x == ucx && y == ucy) ||
             (x == lpx + wFactor && y == lpy + wFactor)
+            // Math.sqrt(Math.pow(cx - x, 2) + Math.pow(cy - y, 2))
         );
     }
 
-    static getCursorPosition(mousePosition: Position, values: CanvasObject): CursorPosition {
+    static getCursorPosition(mousePosition: Position, values: CanvasObject, type: ElementEnum): CursorPosition {
         const { x, y } = mousePosition;
         const { x: cx = 0, y: cy = 0, h = 0, w = 0, style = DefaultStyle } = values;
         const { strokeWidth } = style;
@@ -80,15 +82,35 @@ export class CanvasHelper {
         const ucy = cy + -wFactor;
         const uh = h + ucy + wFactor * 2;
         const uw = w + ucx + wFactor * 2;
-        return x >= ucx - HOVER_OFFSET && x <= ucx + HOVER_OFFSET && y >= ucy - HOVER_OFFSET && y <= ucy + HOVER_OFFSET
-            ? "tl"
-            : x >= ucx - HOVER_OFFSET && x <= ucx + HOVER_OFFSET && y >= uh - HOVER_OFFSET && y <= uh + HOVER_OFFSET
-              ? "bl"
-              : x >= uw - HOVER_OFFSET && x <= uw + HOVER_OFFSET && y >= ucy - HOVER_OFFSET && y <= ucy + HOVER_OFFSET
-                ? "tr"
-                : x >= uw - HOVER_OFFSET && x <= uw + HOVER_OFFSET && y >= uh - HOVER_OFFSET && y <= uh + HOVER_OFFSET
-                  ? "br"
-                  : "m";
+        switch (type) {
+            case ElementEnum.Square:
+            case ElementEnum.Rectangle:
+                return x >= ucx - HOVER_OFFSET &&
+                    x <= ucx + HOVER_OFFSET &&
+                    y >= ucy - HOVER_OFFSET &&
+                    y <= ucy + HOVER_OFFSET
+                    ? "tl"
+                    : x >= ucx - HOVER_OFFSET &&
+                        x <= ucx + HOVER_OFFSET &&
+                        y >= uh - HOVER_OFFSET &&
+                        y <= uh + HOVER_OFFSET
+                      ? "bl"
+                      : x >= uw - HOVER_OFFSET &&
+                          x <= uw + HOVER_OFFSET &&
+                          y >= ucy - HOVER_OFFSET &&
+                          y <= ucy + HOVER_OFFSET
+                        ? "tr"
+                        : x >= uw - HOVER_OFFSET &&
+                            x <= uw + HOVER_OFFSET &&
+                            y >= uh - HOVER_OFFSET &&
+                            y <= uh + HOVER_OFFSET
+                          ? "br"
+                          : "m";
+            case ElementEnum.Circle:
+                return "m";
+            default:
+                return "m";
+        }
     }
 
     static getCursor(position: CursorPosition) {
@@ -109,7 +131,8 @@ export class CanvasHelper {
     static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[]) {
         return elements.find(
             (e) =>
-                this.isUnderMouse(mouseCords, e.getValues()) || this.getCursorPosition(mouseCords, e.getValues()) != "m"
+                this.isUnderMouse(mouseCords, e.getValues()) ||
+                this.getCursorPosition(mouseCords, e.getValues(), e.type) != "m"
         );
     }
 
@@ -119,6 +142,7 @@ export class CanvasHelper {
         ctx.fillStyle = fillColor;
         ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = strokeWidth;
+        ctx.lineCap = "round";
     }
 
     static getHTMLStyle(style: IObjectStyle, { height, width }: IToSVGOptions) {
