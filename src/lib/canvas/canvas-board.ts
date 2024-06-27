@@ -40,7 +40,7 @@ export class CanvasBoard implements ICanvas {
     private _activeObjects: ICanvasObjectWithId[] = [];
     private _hoveredObject: ICanvasObjectWithId | null = null;
 
-    _elementType: ElementEnum = ElementEnum.Move;
+    _elementType: ElementEnum = ElementEnum.Pencil;
     _currentCanvasAction: CanvasActionEnum = CanvasActionEnum.Select;
     _zoom = 100;
     _style: IObjectStyle = DefaultStyle;
