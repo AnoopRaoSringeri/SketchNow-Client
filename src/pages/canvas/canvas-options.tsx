@@ -1,4 +1,4 @@
-import { Circle, Cylinder, LineChart, Move, Pencil, RectangleHorizontal, Save, Square } from "lucide-react";
+import { Circle, Minus, Move, Pencil, RectangleHorizontal, Save, Square } from "lucide-react";
 import { observer } from "mobx-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -22,8 +22,7 @@ const LeftOptionLists: Option[] = [
     { icon: RectangleHorizontal, value: ElementEnum.Rectangle },
     { icon: Circle, value: ElementEnum.Circle },
     { icon: Square, value: ElementEnum.Square },
-    { icon: LineChart, value: ElementEnum.Line },
-    { icon: Cylinder, value: ElementEnum.Ellipse }
+    { icon: Minus, value: ElementEnum.Line }
 ];
 
 const CanvasOptions = observer(function CanvasOptions({ name }: { name: string }) {

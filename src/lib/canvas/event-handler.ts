@@ -6,7 +6,8 @@ import {
     CANVAS_SCALING_FACTOR,
     CANVAS_SCALING_LIMIT,
     CANVAS_SCALING_MULTIPLIER,
-    CanvasHelper
+    CanvasHelper,
+    SelectionStyle
 } from "../canvas-helpers";
 import { CanvasBoard } from "./canvas-board";
 import { CavasObjectMap } from "./canvas-objects/object-mapping";
@@ -56,6 +57,20 @@ export class EventManager {
                             ao.move(context, { x: 0, y: 0 }, "down");
                         });
                     }
+                } else {
+                    this.Board._currentCanvasAction = CanvasActionEnum.Select;
+                    this.Board._selectionArea = CavasObjectMap[ElementEnum.Rectangle](
+                        {
+                            x: offsetX,
+                            y: offsetY,
+                            h: 0,
+                            w: 0,
+                            id: uuid(),
+                            style: SelectionStyle
+                        },
+                        this.Board
+                    );
+                    this.Board._selectionArea.create(context);
                 }
             }
         } else {
@@ -96,7 +111,16 @@ export class EventManager {
                 this.Board.PointerOrigin = { x: offsetX, y: offsetY };
                 this.Board.redrawBoard();
             } else if (this.Board.ElementType == ElementEnum.Move) {
-                if (this.Board._currentCanvasAction == CanvasActionEnum.Resize && this.Board.CursorPosition) {
+                if (this.Board._currentCanvasAction == CanvasActionEnum.Select && this.Board._selectionArea) {
+                    this.Board._selectionArea.update(
+                        context,
+                        {
+                            w: offsetX - x,
+                            h: offsetY - y
+                        },
+                        "move"
+                    );
+                } else if (this.Board._currentCanvasAction == CanvasActionEnum.Resize && this.Board.CursorPosition) {
                     this.Board.SelectedElements = [];
                     this.Board.ActiveObjects.forEach((ao) => {
                         ao.resize(context, { dx: offsetX - x, dy: offsetY - y }, this.Board.CursorPosition!, "move");
@@ -108,14 +132,12 @@ export class EventManager {
                     });
                 }
             } else {
-                const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
                 this.Board.ActiveObjects.forEach((ao) => {
                     ao.update(
                         context,
                         {
                             w: offsetX - x,
                             h: offsetY - y,
-                            r,
                             points: [[offsetX, offsetY]]
                         },
                         "move"
@@ -158,36 +180,55 @@ export class EventManager {
         if (!context) {
             return;
         }
+        if (!this.Board.PointerOrigin) {
+            return;
+        }
+        const { x, y } = this.Board.PointerOrigin;
         const { offsetX, offsetY } = CanvasHelper.getCurrentMousePosition(e, this.Board.Transform);
+        if (this.Board._selectionArea) {
+            this.Board._selectionArea.update(
+                context,
+                {
+                    w: offsetX - x,
+                    h: offsetY - y,
+                    points: [[offsetX, offsetY]]
+                },
+                "up"
+            );
+            const { h = 0, w = 0, x: sax = 0, y: say = 0 } = this.Board._selectionArea.getValues();
+            this.Board.SelectedElements = CanvasHelper.getElementsInsideArea(
+                { height: h, width: w, x: sax, y: say },
+                this.Board.Elements
+            );
+            this.Board.SelectedElements.forEach((ele) => {
+                ele.select(ele.getValues());
+            });
+            this.Board._selectionArea = null;
+        }
         if (this.Board.ActiveObjects.length != 0) {
-            if (this.Board.ActiveObjects.length != 0 && this.Board.PointerOrigin) {
-                const { x, y } = this.Board.PointerOrigin;
-                if (this.Board.ElementType == ElementEnum.Move) {
-                    if (this.Board._currentCanvasAction == CanvasActionEnum.Resize) {
-                        this.Board.ActiveObjects.forEach((ao) => {
-                            ao.resize(context, { dx: offsetX - x, dy: offsetY - y }, this.Board.CursorPosition!, "up");
-                        });
-                    } else {
-                        this.Board.ActiveObjects.forEach((ao) => {
-                            ao.move(context, { x: offsetX - x, y: offsetY - y }, "up");
-                        });
-                    }
-                    this.Board.SelectedElements = this.Board.ActiveObjects;
-                } else {
-                    const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
+            if (this.Board.ElementType == ElementEnum.Move) {
+                if (this.Board._currentCanvasAction == CanvasActionEnum.Resize) {
                     this.Board.ActiveObjects.forEach((ao) => {
-                        ao.update(
-                            context,
-                            {
-                                w: offsetX - x,
-                                h: offsetY - y,
-                                r,
-                                points: [[offsetX, offsetY]]
-                            },
-                            "up"
-                        );
+                        ao.resize(context, { dx: offsetX - x, dy: offsetY - y }, this.Board.CursorPosition!, "up");
+                    });
+                } else {
+                    this.Board.ActiveObjects.forEach((ao) => {
+                        ao.move(context, { x: offsetX - x, y: offsetY - y }, "up");
                     });
                 }
+                this.Board.SelectedElements = this.Board.ActiveObjects;
+            } else {
+                this.Board.ActiveObjects.forEach((ao) => {
+                    ao.update(
+                        context,
+                        {
+                            w: offsetX - x,
+                            h: offsetY - y,
+                            points: [[offsetX, offsetY]]
+                        },
+                        "up"
+                    );
+                });
             }
             context.closePath();
             this.Board.saveBoard();
@@ -285,13 +326,11 @@ export class EventManager {
             if (this.Board.ElementType == ElementEnum.Move) {
                 this.Board.ActiveObjects[0].move(context, { x: offsetX - x, y: offsetY - y }, "move");
             } else {
-                const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
                 this.Board.ActiveObjects[0].update(
                     context,
                     {
                         w: offsetX - x,
                         h: offsetY - y,
-                        r,
                         points: [[offsetX, offsetY]]
                     },
                     "move"
@@ -315,8 +354,7 @@ export class EventManager {
                 if (this.Board.ElementType == ElementEnum.Move) {
                     this.Board.ActiveObjects[0].move(context, { x: offsetX - x, y: offsetY - y }, "up");
                 } else {
-                    const r = Math.max(Math.abs(offsetX - x), Math.abs(offsetY - y));
-                    this.Board.ActiveObjects[0].update(context, { w: offsetX - x, h: offsetY - y, r }, "up");
+                    this.Board.ActiveObjects[0].update(context, { w: offsetX - x, h: offsetY - y }, "up");
                 }
             }
             context.closePath();

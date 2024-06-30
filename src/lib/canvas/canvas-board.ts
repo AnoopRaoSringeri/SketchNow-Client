@@ -40,7 +40,7 @@ export class CanvasBoard implements ICanvas {
     private _activeObjects: ICanvasObjectWithId[] = [];
     private _hoveredObject: ICanvasObjectWithId | null = null;
 
-    _elementType: ElementEnum = ElementEnum.Pencil;
+    _elementType: ElementEnum = ElementEnum.Move;
     _currentCanvasAction: CanvasActionEnum = CanvasActionEnum.Select;
     _zoom = 100;
     _style: IObjectStyle = DefaultStyle;
@@ -48,7 +48,7 @@ export class CanvasBoard implements ICanvas {
     _canvasTransform: ICanvasTransform = CanvasHelper.GetDefaultTransForm();
 
     private EventManager: EventManager;
-
+    _selectionArea: ICanvasObjectWithId | null = null;
     constructor() {
         this.EventManager = new EventManager(this);
         this._canvas = createRef();

@@ -44,10 +44,10 @@ export const CanvasBoard = observer(function CanvasBoard() {
             <Loader loading={isLoading} />
             <CanvasOptions name={sketchName} />
             <ElementOptions />
-            <canvas id="canvas-board" className="absolute z-10 overscroll-contain" ref={canvasBoard.CanvasRef}></canvas>
+            <canvas id="canvas-board" className="absolute z-10 overscroll-none" ref={canvasBoard.CanvasRef}></canvas>
             <canvas
                 id="canvas-board-copy"
-                className="absolute z-20 overscroll-contain"
+                className="absolute z-20 overscroll-none"
                 ref={canvasBoard.CanvasCopyRef}
             ></canvas>
         </>

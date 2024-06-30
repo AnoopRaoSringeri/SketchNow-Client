@@ -7,9 +7,9 @@ export interface IObjectValue {
     y: number;
     h: number;
     w: number;
-    r: number;
     sa: number;
     ea: number;
+    ro: number;
     points: [number, number][];
     style: IObjectStyle;
 }
@@ -88,7 +88,6 @@ export enum ElementEnum {
     Square = "square",
     Rectangle = "rectangle",
     Circle = "circle",
-    Ellipse = "ellipse",
     Pencil = "pencil",
     Move = "move"
 }

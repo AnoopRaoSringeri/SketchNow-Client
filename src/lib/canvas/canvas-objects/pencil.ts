@@ -64,11 +64,31 @@ export class Pencil implements ICanvasObjectWithId {
         this._parent = parent;
     }
 
-    select(cords: Partial<IObjectValue>) {
-        console.log(cords);
+    select({ points = this.points }: Partial<IObjectValue>) {
+        this._isSelected = true;
+        let x = Number.POSITIVE_INFINITY;
+        let y = Number.POSITIVE_INFINITY;
+        let h = Number.MIN_VALUE;
+        let w = Number.MIN_VALUE;
+        points.forEach(([px, py]) => {
+            x = Math.min(x, px);
+            y = Math.min(y, py);
+            h = Math.max(h, py);
+            w = Math.max(w, px);
+        });
+        h = h - y;
+        w = w - x;
+        if (this._parent.CanvasCopy) {
+            const copyCtx = this._parent.CanvasCopy.getContext("2d");
+            if (copyCtx) {
+                CanvasHelper.applySelection(copyCtx, { height: h, width: w, x, y }, false);
+            }
+        }
     }
 
-    unSelect() {}
+    unSelect() {
+        this._isSelected = false;
+    }
 
     getPosition() {
         return CanvasHelper.getAbsolutePosition({ x: 0, y: 0 }, this._parent.Transform);
@@ -93,6 +113,9 @@ export class Pencil implements ICanvasObjectWithId {
         ctx.stroke(myPath);
         ctx.fill(myPath);
         ctx.restore();
+        if (this.IsSelected) {
+            this.select({ points: this.points });
+        }
     }
 
     create(ctx: CanvasRenderingContext2D) {
@@ -128,22 +151,21 @@ export class Pencil implements ICanvasObjectWithId {
             CanvasHelper.applyStyles(ctx, this.style);
         }
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        const stroke = getStroke(
-            this.points.map((p) => {
-                const [px, py] = p;
-                const offsetX = x + px;
-                const offsetY = y + py;
-                return [offsetX, offsetY];
-            }),
-            {
-                size: this.style.strokeWidth,
-                ...options
-            }
-        );
+        const points: [number, number][] = this.points.map((p) => {
+            const [px, py] = p;
+            const offsetX = x + px;
+            const offsetY = y + py;
+            return [offsetX, offsetY];
+        });
+        const stroke = getStroke(points, {
+            size: this.style.strokeWidth,
+            ...options
+        });
         const pathData = getSvgPathFromStroke(stroke);
         const myPath = new Path2D(pathData);
         ctx.stroke(myPath);
         ctx.fill(myPath);
+        this.select({ points });
         if (action == "up") {
             ctx.restore();
             this.points = this.points.map((p) => {

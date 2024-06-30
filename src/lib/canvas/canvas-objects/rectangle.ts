@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 
-import { CanvasHelper, DefaultStyle, GUTTER } from "@/lib/canvas-helpers";
+import { CanvasHelper, DefaultStyle } from "@/lib/canvas-helpers";
 import { Delta, Position } from "@/types/canvas";
 import {
     CursorPosition,
@@ -48,38 +48,7 @@ export class Rectangle implements ICanvasObjectWithId {
         if (this._parent.CanvasCopy) {
             const copyCtx = this._parent.CanvasCopy.getContext("2d");
             if (copyCtx) {
-                copyCtx.save();
-                copyCtx.strokeStyle = "#00ffff";
-                copyCtx.fillStyle = "#00ffff";
-                copyCtx.lineWidth = 0.5;
-                copyCtx.strokeRect(x - GUTTER, y - GUTTER, w + GUTTER * 2, h + GUTTER * 2);
-
-                copyCtx.beginPath();
-                copyCtx.moveTo(x, y);
-                copyCtx.arc(x, y, 4, 0, 2 * Math.PI);
-                copyCtx.stroke();
-                copyCtx.fill();
-
-                copyCtx.beginPath();
-                copyCtx.moveTo(x, y + h);
-                copyCtx.arc(x, y + h, 4, 0, 2 * Math.PI);
-                copyCtx.stroke();
-                copyCtx.fill();
-
-                copyCtx.beginPath();
-                copyCtx.moveTo(x + w, y);
-                copyCtx.arc(x + w, y, 4, 0, 2 * Math.PI);
-                copyCtx.stroke();
-                copyCtx.fill();
-
-                copyCtx.beginPath();
-                copyCtx.moveTo(x + w, y + h);
-                copyCtx.arc(x + w, y + h, 4, 0, 2 * Math.PI);
-                copyCtx.stroke();
-                copyCtx.fill();
-
-                copyCtx.closePath();
-                copyCtx.restore();
+                CanvasHelper.applySelection(copyCtx, { height: h, width: w, x, y });
             }
         }
     }
