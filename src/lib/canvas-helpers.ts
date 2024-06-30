@@ -182,8 +182,8 @@ export class CanvasHelper {
             case ElementEnum.Pencil: {
                 let lx = Number.POSITIVE_INFINITY;
                 let ly = Number.POSITIVE_INFINITY;
-                let lh = Number.MIN_VALUE;
-                let lw = Number.MIN_VALUE;
+                let lh = Number.MIN_SAFE_INTEGER;
+                let lw = Number.MIN_SAFE_INTEGER;
                 points.forEach(([px, py]) => {
                     lx = Math.min(lx, px);
                     ly = Math.min(ly, py);
@@ -199,7 +199,7 @@ export class CanvasHelper {
                 break;
             }
         }
-        return h <= height && w <= width && x >= px && y >= py;
+        return h <= height && w <= width && x >= px && y >= py && h + y <= height + py && w + x <= width + px;
     }
 
     static hoveredElement(mouseCords: Position, elements: ICanvasObjectWithId[]) {
@@ -225,6 +225,40 @@ export class CanvasHelper {
 
     static getAbsolutePosition({ x, y }: Position, { e, f, a }: ICanvasTransform) {
         return { x, y, ax: x * a + e, ay: y * a + f };
+    }
+
+    static getSelectedAreaBoundary(elements: ICanvasObjectWithId[]) {
+        let x = Number.POSITIVE_INFINITY;
+        let y = Number.POSITIVE_INFINITY;
+        let h = Number.MIN_SAFE_INTEGER;
+        let w = Number.MIN_SAFE_INTEGER;
+        elements.forEach((ele) => {
+            const { x: ex = 0, y: ey = 0, h: eh = 0, w: ew = 0, points = [] } = ele.getValues();
+            switch (ele.type) {
+                case ElementEnum.Circle:
+                case ElementEnum.Square:
+                case ElementEnum.Rectangle:
+                    x = Math.min(x, ex);
+                    y = Math.min(y, ey);
+                    h = Math.max(h, eh + ey);
+                    w = Math.max(w, ew + ex);
+                    break;
+                case ElementEnum.Line:
+                case ElementEnum.Pencil:
+                    points.forEach(([px, py]) => {
+                        x = Math.min(x, px);
+                        y = Math.min(y, py);
+                        h = Math.max(h, py);
+                        w = Math.max(w, px);
+                    });
+                    h = h - y;
+                    w = w - x;
+                    break;
+            }
+        });
+        h = h - y;
+        w = w - x;
+        return { x, y, h, w };
     }
 
     static clearCanvasArea(

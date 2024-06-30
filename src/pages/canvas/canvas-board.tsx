@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useStore } from "@/api-stores/store-provider";
-import { ElementOptions } from "@/components/mini-components/element-options";
+import { OptionsWrapper } from "@/components/mini-components/options-wrapper";
 import { Loader } from "@/components/ui/loader";
 import { useCanvas } from "@/hooks/use-canvas";
 
@@ -43,7 +43,7 @@ export const CanvasBoard = observer(function CanvasBoard() {
         <>
             <Loader loading={isLoading} />
             <CanvasOptions name={sketchName} />
-            <ElementOptions />
+            <OptionsWrapper />
             <canvas id="canvas-board" className="absolute z-10 overscroll-none" ref={canvasBoard.CanvasRef}></canvas>
             <canvas
                 id="canvas-board-copy"

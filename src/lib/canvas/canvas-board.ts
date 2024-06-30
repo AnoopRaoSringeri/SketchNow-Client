@@ -48,7 +48,9 @@ export class CanvasBoard implements ICanvas {
     _canvasTransform: ICanvasTransform = CanvasHelper.GetDefaultTransForm();
 
     private EventManager: EventManager;
+    _tempSelectionArea: ICanvasObjectWithId | null = null;
     _selectionArea: ICanvasObjectWithId | null = null;
+
     constructor() {
         this.EventManager = new EventManager(this);
         this._canvas = createRef();
@@ -64,7 +66,9 @@ export class CanvasBoard implements ICanvas {
             _zoom: observable,
             Zoom: computed,
             _canvasTransform: observable,
-            Transform: computed
+            Transform: computed,
+            _selectionArea: observable,
+            SelectionElement: computed
         });
     }
 
@@ -99,6 +103,8 @@ export class CanvasBoard implements ICanvas {
 
     set ElementType(type: ElementEnum) {
         this._elementType = type;
+        this._activeObjects = [];
+        this.unSelectElements();
     }
 
     get Height() {
@@ -153,6 +159,14 @@ export class CanvasBoard implements ICanvas {
 
     get Transform() {
         return this._canvasTransform;
+    }
+
+    get SelectionElement() {
+        return this._selectionArea;
+    }
+
+    set SelectionElement(ele: ICanvasObjectWithId | null) {
+        this._selectionArea = ele;
     }
 
     set Transform(transform: ICanvasTransform) {
@@ -280,6 +294,8 @@ export class CanvasBoard implements ICanvas {
             ele.unSelect();
         });
         this.SelectedElements = [];
+        this._tempSelectionArea = null;
+        this.SelectionElement = null;
         this.redrawBoard();
     }
 
@@ -392,6 +408,9 @@ export class CanvasBoard implements ICanvas {
                         this.ActiveObjects.forEach((ele) => {
                             ele.draw(contextCopy);
                         });
+                        if (this._tempSelectionArea) {
+                            this._tempSelectionArea.draw(contextCopy);
+                        }
                     }
                 }
                 const context = this.Canvas.getContext("2d");

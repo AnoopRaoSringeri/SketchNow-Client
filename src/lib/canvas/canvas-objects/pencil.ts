@@ -68,8 +68,8 @@ export class Pencil implements ICanvasObjectWithId {
         this._isSelected = true;
         let x = Number.POSITIVE_INFINITY;
         let y = Number.POSITIVE_INFINITY;
-        let h = Number.MIN_VALUE;
-        let w = Number.MIN_VALUE;
+        let h = Number.MIN_SAFE_INTEGER;
+        let w = Number.MIN_SAFE_INTEGER;
         points.forEach(([px, py]) => {
             x = Math.min(x, px);
             y = Math.min(y, py);
